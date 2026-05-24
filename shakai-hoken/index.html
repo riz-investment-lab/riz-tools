@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>社会保険料シミュレーター｜Riz投資ラボ</title>
+<meta name="description" content="退職後に国保とマイクロ法人の社会保険料を比較できるシミュレーターです。名古屋市・2024年度料率による概算計算。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  font-family:'Noto Sans JP',sans-serif;
+  font-size:15px;
+  line-height:1.7;
+  color:#2C2C2A;
+  background:#F5F3EE;
+  min-height:100vh;
+}
+
+/* ── Header ── */
+.header{
+  background:#1A4A2A;
+  color:white;
+  padding:2rem 1.5rem 1.75rem;
+  text-align:center;
+}
+.header-badge{
+  display:inline-block;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.12em;
+  color:#1A4A2A;
+  background:#9FE1CB;
+  padding:3px 12px;
+  border-radius:100px;
+  margin-bottom:.75rem;
+}
+.header h1{
+  font-size:1.25rem;
+  font-weight:700;
+  line-height:1.5;
+  margin-bottom:.5rem;
+}
+.header-note{
+  font-size:12px;
+  color:#9FE1CB;
+}
+
+/* ── Layout ── */
+.container{
+  max-width:660px;
+  margin:0 auto;
+  padding:1.5rem 1rem 4rem;
+}
+.section{margin-bottom:1.5rem}
+.section-title{
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.08em;
+  color:#888780;
+  margin-bottom:.75rem;
+  padding-left:2px;
+}
+
+/* ── Card ── */
+.card{
+  background:white;
+  border-radius:14px;
+  padding:1.25rem 1.25rem 1rem;
+  box-shadow:0 1px 4px rgba(0,0,0,.06);
+}
+
+/* ── Inputs ── */
+.input-group{margin-bottom:1.25rem}
+.input-group:last-child{margin-bottom:0}
+
+.input-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  margin-bottom:.5rem;
+}
+.input-row-label{font-size:13px;color:#444441;font-weight:500}
+.input-row-value{
+  font-size:16px;
+  font-weight:700;
+  color:#1A4A2A;
+  min-width:80px;
+  text-align:right;
+}
+
+input[type="range"]{
+  width:100%;
+  height:5px;
+  -webkit-appearance:none;
+  appearance:none;
+  background:linear-gradient(to right,#1D9E75 0%,#1D9E75 var(--pct,50%),#D3D1C7 var(--pct,50%),#D3D1C7 100%);
+  border-radius:3px;
+  outline:none;
+  cursor:pointer;
+}
+input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  background:#1A4A2A;
+  cursor:pointer;
+  box-shadow:0 2px 5px rgba(0,0,0,.25);
+}
+input[type="range"]::-moz-range-thumb{
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  background:#1A4A2A;
+  cursor:pointer;
+  border:none;
+  box-shadow:0 2px 5px rgba(0,0,0,.25);
+}
+
+.range-labels{
+  display:flex;
+  justify-content:space-between;
+  font-size:10px;
+  color:#B4B2A9;
+  margin-top:3px;
+}
+
+/* Toggle pills */
+.toggle-group{display:flex;gap:8px;flex-wrap:wrap}
+.toggle-btn{
+  padding:6px 18px;
+  border:1.5px solid #D3D1C7;
+  border-radius:100px;
+  background:white;
+  color:#5F5E5A;
+  font-size:13px;
+  font-family:inherit;
+  cursor:pointer;
+  transition:all .15s;
+  white-space:nowrap;
+}
+.toggle-btn:hover{border-color:#1A4A2A;color:#1A4A2A}
+.toggle-btn.active{
+  background:#1A4A2A;
+  border-color:#1A4A2A;
+  color:white;
+  font-weight:500;
+}
+
+.hint{font-size:12px;color:#B4B2A9;margin-top:.5rem;line-height:1.6}
+
+/* ── Result cards ── */
+.result-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-bottom:10px;
+}
+@media(max-width:420px){.result-row{grid-template-columns:1fr}}
+
+.rcard{border-radius:14px;padding:1.1rem 1.25rem}
+.rcard-label{font-size:11px;font-weight:700;letter-spacing:.04em;margin-bottom:.35rem}
+.rcard-amount{font-size:2rem;font-weight:700;line-height:1;margin-bottom:.25rem}
+.rcard-sub{font-size:11px}
+
+.rcard.kokuho{
+  background:#FDF0EE;
+  border:1.5px solid #F0997B;
+}
+.kokuho .rcard-label{color:#993C1D}
+.kokuho .rcard-amount{color:#D85A30}
+.kokuho .rcard-sub{color:#BA7517}
+
+.rcard.micro{
+  background:#EAF3DE;
+  border:1.5px solid #97C459;
+}
+.micro .rcard-label{color:#3B6D11}
+.micro .rcard-amount{color:#1D9E75}
+.micro .rcard-sub{color:#639922}
+
+/* Diff banner */
+.diff-banner{
+  background:#1A4A2A;
+  color:white;
+  border-radius:14px;
+  padding:1.25rem;
+  text-align:center;
+  margin-bottom:10px;
+}
+.diff-label{font-size:11px;color:#9FE1CB;letter-spacing:.06em;margin-bottom:.2rem}
+.diff-amount{font-size:2.5rem;font-weight:700;color:#C0DD97;line-height:1.1}
+.diff-sub{font-size:12px;color:#9FE1CB;margin-top:.3rem}
+
+/* Corp cost note */
+.corp-note{
+  background:#F5F3EE;
+  border-radius:10px;
+  padding:.75rem 1rem;
+  font-size:12px;
+  color:#5F5E5A;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+}
+.corp-note-net{font-weight:700;color:#1A4A2A;white-space:nowrap}
+
+/* ── Breakdown table ── */
+.breakdown{border-radius:14px;overflow:hidden;background:white;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.breakdown table{width:100%;border-collapse:collapse;font-size:13px}
+.breakdown th{
+  padding:9px 14px;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:.05em;
+  color:#888780;
+  background:#FAFAF8;
+  text-align:left;
+  border-bottom:1px solid #ECEAE4;
+}
+.breakdown th:not(:first-child){text-align:right}
+.breakdown td{
+  padding:11px 14px;
+  border-bottom:1px solid #F5F3EE;
+  color:#444441;
+  vertical-align:middle;
+}
+.breakdown td:not(:first-child){text-align:right;font-weight:500}
+.breakdown tr.ttl td{
+  font-weight:700;
+  background:#FAFAF8;
+  border-top:1.5px solid #ECEAE4;
+  border-bottom:none;
+}
+.breakdown tr.hojin td{
+  font-size:12px;
+  color:#888780;
+  border-bottom:none;
+}
+.c-k{color:#D85A30}
+.c-m{color:#1D9E75}
+.c-g{color:#888780}
+
+/* ── Notes ── */
+.notes{
+  background:white;
+  border-radius:14px;
+  padding:1rem 1.25rem;
+  box-shadow:0 1px 4px rgba(0,0,0,.06);
+}
+.notes ul{list-style:none}
+.notes li{
+  font-size:12px;
+  color:#5F5E5A;
+  line-height:1.8;
+  padding:.25rem 0 .25rem 1.2rem;
+  position:relative;
+}
+.notes li::before{
+  content:"※";
+  position:absolute;
+  left:0;
+  color:#B4B2A9;
+  font-size:11px;
+}
+
+/* ── Footer links ── */
+.links{
+  text-align:center;
+  margin-top:2rem;
+  padding-top:1.5rem;
+  border-top:1px solid #ECEAE4;
+}
+.links p{font-size:12px;color:#888780;margin-bottom:.75rem}
+.btn{
+  display:inline-block;
+  padding:10px 22px;
+  border-radius:100px;
+  font-size:13px;
+  font-weight:700;
+  text-decoration:none;
+  margin:4px;
+  font-family:inherit;
+}
+.btn-note{background:#8B6914;color:white}
+.btn-line{background:#06C755;color:white}
+
+.footer-text{
+  margin-top:1.5rem;
+  font-size:11px;
+  color:#B4B2A9;
+  line-height:1.9;
+  text-align:center;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="header-badge">RIZ INVEST LAB</span>
+  <h1>無職とマイクロ法人の<br>社会保険料シミュレーター</h1>
+  <p class="header-note">名古屋市・2024年度料率による概算</p>
+</div>
+
+<div class="container">
+
+  <!-- ── 入力エリア ── -->
+  <div class="section">
+    <p class="section-title">条件を入力</p>
+    <div class="card">
+
+      <div class="input-group">
+        <div class="input-row">
+          <span class="input-row-label">あなたの年齢</span>
+          <span class="input-row-value"><span id="v-age">50</span>歳</span>
+        </div>
+        <input type="range" id="age" min="40" max="64" value="50" step="1" oninput="update()">
+        <div class="range-labels"><span>40歳</span><span>64歳</span></div>
+        <p class="hint">40〜64歳が対象です（介護保険の対象年齢）</p>
+      </div>
+
+      <div class="input-group">
+        <div class="input-row" style="margin-bottom:.6rem">
+          <span class="input-row-label">配偶者（扶養内）</span>
+        </div>
+        <div class="toggle-group">
+          <button class="toggle-btn active" id="sp-yes" onclick="setSpouse(true)">あり</button>
+          <button class="toggle-btn" id="sp-no" onclick="setSpouse(false)">なし</button>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <div class="input-row" style="margin-bottom:.6rem">
+          <span class="input-row-label">子供の人数（18歳未満）</span>
+        </div>
+        <div class="toggle-group" id="child-btns">
+          <button class="toggle-btn" onclick="setChildren(0,this)">0人</button>
+          <button class="toggle-btn" onclick="setChildren(1,this)">1人</button>
+          <button class="toggle-btn active" onclick="setChildren(2,this)">2人</button>
+          <button class="toggle-btn" onclick="setChildren(3,this)">3人</button>
+        </div>
+        <p class="hint">2024年度から子供の均等割は半額軽減されています</p>
+      </div>
+
+      <div class="input-group">
+        <div class="input-row">
+          <span class="input-row-label">前年の課税所得</span>
+          <span class="input-row-value"><span id="v-income">500</span>万円</span>
+        </div>
+        <input type="range" id="income" min="50" max="800" value="500" step="10" oninput="update()">
+        <div class="range-labels"><span>50万円</span><span>800万円</span></div>
+        <p class="hint">給与・投資収益等から各種控除を引いた後の金額です</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── マイクロ法人設定 ── -->
+  <div class="section">
+    <p class="section-title">マイクロ法人の役員報酬（月額）</p>
+    <div class="card">
+      <div class="input-group" style="margin-bottom:0">
+        <div class="input-row">
+          <span class="input-row-label">役員報酬</span>
+          <span class="input-row-value"><span id="v-salary">6</span>万円 / 月</span>
+        </div>
+        <input type="range" id="salary" min="6" max="30" value="6" step="1" oninput="update()">
+        <div class="range-labels"><span>6万円（最低水準）</span><span>30万円</span></div>
+        <p class="hint">低く設定するほど社会保険料を抑えられます。一般的にはまず6〜8万円で設計します。厚生年金の最低標準報酬月額は58,000円です。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 結果 ── -->
+  <div class="section">
+    <p class="section-title">試算結果（年間・概算）</p>
+
+    <div class="result-row">
+      <div class="rcard kokuho">
+        <div class="rcard-label">国民健康保険</div>
+        <div class="rcard-amount" id="r-kokuho">—</div>
+        <div class="rcard-sub">家族全員分の合計</div>
+      </div>
+      <div class="rcard micro">
+        <div class="rcard-label">マイクロ法人 社保</div>
+        <div class="rcard-amount" id="r-micro">—</div>
+        <div class="rcard-sub">本人負担分のみ<br>妻・子は扶養で追加なし</div>
+      </div>
+    </div>
+
+    <div class="diff-banner">
+      <div class="diff-label">本人負担ベースの差額（年間）</div>
+      <div class="diff-amount" id="r-diff">—</div>
+      <div class="diff-sub" id="r-diff-sub">—</div>
+    </div>
+
+    <div class="corp-note">
+      <span>法人維持コスト（均等割7万円＋その他）を差し引いた<br>実質メリット（目安）</span>
+      <span class="corp-note-net" id="r-net">—</span>
+    </div>
+  </div>
+
+  <!-- ── 詳細内訳 ── -->
+  <div class="section">
+    <p class="section-title">詳細内訳</p>
+    <div class="breakdown">
+      <table>
+        <thead>
+          <tr>
+            <th>内訳項目</th>
+            <th>国保</th>
+            <th>マイクロ法人<br>（本人負担）</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>医療・健康保険分</td>
+            <td class="c-k" id="b-iryo">—</td>
+            <td class="c-m" id="b-kenko">—</td>
+          </tr>
+          <tr>
+            <td>後期高齢者支援金分</td>
+            <td class="c-k" id="b-koki">—</td>
+            <td class="c-g">対象外</td>
+          </tr>
+          <tr>
+            <td>厚生年金</td>
+            <td class="c-g">対象外</td>
+            <td class="c-m" id="b-nenkin">—</td>
+          </tr>
+          <tr>
+            <td>介護保険分</td>
+            <td class="c-k" id="b-kaigo">—</td>
+            <td class="c-m" id="b-m-kaigo">—</td>
+          </tr>
+          <tr class="ttl">
+            <td>合計（年間）</td>
+            <td class="c-k" id="b-kokuho-ttl">—</td>
+            <td class="c-m" id="b-micro-ttl">—</td>
+          </tr>
+          <tr class="hojin">
+            <td>法人負担分（別途・法人の追加支出）</td>
+            <td class="c-g">—</td>
+            <td class="c-g" id="b-hojin">—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── 注意事項 ── -->
+  <div class="section">
+    <p class="section-title">ご注意・免責</p>
+    <div class="notes">
+      <ul>
+        <li>名古屋市の2024年度概算料率をもとにした試算です。実際の金額は市区町村・所得の種類・家族構成・年度によって異なります。</li>
+        <li>課税所得とは、収入から各種控除を引いた後の金額です。上場株式の場合、源泉徴収ありの特定口座を利用すると国保の所得に含まれないケースもあります（確定申告の方法による）。</li>
+        <li>子供の均等割は2024年度から全国一律半額軽減を適用しています。介護保険分は40〜64歳のみ対象です。</li>
+        <li>協会けんぽの料率は愛知県（2024年度）を使用しています。他都道府県では若干異なります。厚生年金は全国統一料率です。</li>
+        <li>法人維持コストの目安（10万円）は均等割・その他費用の概算です。税理士に依頼する場合は別途20〜30万円程度かかります。</li>
+        <li>本ツールは個人の実践記録をもとに作成した参考情報です。法人設立・社会保険加入の手続きは、社会保険労務士・税理士にご相談ください。</li>
+        <li>本ツールは投資助言・税務助言・法律助言ではありません。最終的な判断はご自身の責任でお願いします。</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── リンク ── -->
+  <div class="links">
+    <p>詳しい解説記事はこちら</p>
+    <a class="btn btn-note" href="https://note.com/riz_invest_lab" target="_blank">Riz投資ラボ note</a>
+    <br>
+    <p style="margin-top:1rem">毎朝の基準価額・株価アラートをLINEで（無料）</p>
+    <a class="btn btn-line" href="https://line.me/R/ti/p/@487fmuxd" target="_blank">Riz投信予報</a>
+    <a class="btn btn-line" href="https://line.me/R/ti/p/@765rqiqr" target="_blank">Rizウォッチ 日本株</a>
+  </div>
+
+  <div class="footer-text">
+    <p>Riz投資ラボ｜会社員×投資家・投資歴20年以上</p>
+    <p>本ツールは個人の実践記録であり、投資助言・税務助言・売買推奨ではありません。</p>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+/* ── 状態 ── */
+let hasSpouse = true;
+let numChildren = 2;
+
+/* ── 名古屋市 国保 2024年度 概算料率 ── */
+const N = {
+  iryo:  { s: 0.0794, k: 22356, h: 15504, lim: 650000 },
+  koki:  { s: 0.0259, k:  7464, h:  4248, lim: 240000 },
+  kaigo: { s: 0.0196, k: 14424, h:  3600, lim: 170000 }
+};
+
+/* ── 協会けんぽ（愛知県 2024年度） / 厚生年金（全国統一） ── */
+const KP = {
+  kenko:  0.1001,
+  kaigo:  0.0182,
+  nenkin: 0.1830,
+  minH:   58000
+};
+
+const CORP_COST = 100000; // 法人維持コスト目安（年間）
+
+/* ── イベント ── */
+function setSpouse(v) {
+  hasSpouse = v;
+  document.getElementById('sp-yes').classList.toggle('active', v);
+  document.getElementById('sp-no').classList.toggle('active', !v);
+  update();
+}
+
+function setChildren(n, btn) {
+  numChildren = n;
+  document.querySelectorAll('#child-btns .toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  update();
+}
+
+/* ── 国保計算 ── */
+function calcKokuho(income, age) {
+  const base = Math.max(0, income * 10000 - 430000); // 基礎控除概算
+  const adults = 1 + (hasSpouse ? 1 : 0);
+  const km = adults + numChildren * 0.5;              // 子は均等割半額
+
+  const iryo = Math.min(base * N.iryo.s + N.iryo.k * km + N.iryo.h, N.iryo.lim);
+  const koki = Math.min(base * N.koki.s + N.koki.k * km + N.koki.h, N.koki.lim);
+  let kaigo = 0;
+  if (age >= 40 && age <= 64) {
+    kaigo = Math.min(base * N.kaigo.s + N.kaigo.k * adults + N.kaigo.h, N.kaigo.lim);
+  }
+  return {
+    iryo:  Math.round(iryo),
+    koki:  Math.round(koki),
+    kaigo: Math.round(kaigo),
+    total: Math.round(iryo + koki + kaigo)
+  };
+}
+
+/* ── マイクロ法人 社保計算 ── */
+function calcMicro(salaryMan, age) {
+  const s = salaryMan * 10000;
+  const kenko  = s * (KP.kenko  / 2) * 12;
+  const kaigo  = age >= 40 ? s * (KP.kaigo / 2) * 12 : 0;
+  const nenkin = Math.max(s, KP.minH) * (KP.nenkin / 2) * 12;
+  const honin  = kenko + kaigo + nenkin;
+  return {
+    kenko:  Math.round(kenko),
+    kaigo:  Math.round(kaigo),
+    nenkin: Math.round(nenkin),
+    honin:  Math.round(honin),
+    hojin:  Math.round(honin)
+  };
+}
+
+/* ── 表示フォーマット ── */
+function man(n) {
+  const m = Math.round(Math.abs(n) / 10000);
+  return (n < 0 ? '−' : '') + m + '万円';
+}
+
+/* ── スライダーのグラデーション更新 ── */
+function setPct(el) {
+  const pct = (el.value - el.min) / (el.max - el.min) * 100;
+  el.style.setProperty('--pct', pct + '%');
+}
+
+/* ── メイン更新 ── */
+function update() {
+  const ageEl    = document.getElementById('age');
+  const incomeEl = document.getElementById('income');
+  const salaryEl = document.getElementById('salary');
+
+  setPct(ageEl); setPct(incomeEl); setPct(salaryEl);
+
+  const age    = +ageEl.value;
+  const income = +incomeEl.value;
+  const salary = +salaryEl.value;
+
+  document.getElementById('v-age').textContent    = age;
+  document.getElementById('v-income').textContent = income;
+  document.getElementById('v-salary').textContent = salary;
+
+  const k = calcKokuho(income, age);
+  const m = calcMicro(salary, age);
+  const diff = k.total - m.honin;
+  const net  = diff - CORP_COST;
+
+  /* メインカード */
+  document.getElementById('r-kokuho').textContent = man(k.total);
+  document.getElementById('r-micro').textContent  = man(m.honin);
+
+  /* 差額バナー */
+  document.getElementById('r-diff').textContent = (diff >= 0 ? '年間 ' : '') + man(diff) + (diff >= 0 ? ' 節約' : '');
+  document.getElementById('r-diff-sub').textContent =
+    diff >= 0
+      ? 'マイクロ法人の社保にすることで、本人負担だけでこれだけ差が出ます'
+      : '役員報酬を下げると節約効果が高まります';
+
+  /* 実質メリット */
+  document.getElementById('r-net').textContent =
+    (net >= 0 ? '実質 ' : '') + man(net) + (net >= 0 ? ' のメリット' : '（維持コスト超過）');
+
+  /* 詳細内訳 */
+  document.getElementById('b-iryo').textContent   = man(k.iryo);
+  document.getElementById('b-koki').textContent   = man(k.koki);
+  document.getElementById('b-kaigo').textContent  = k.kaigo > 0 ? man(k.kaigo) : '対象外';
+  document.getElementById('b-kokuho-ttl').textContent = man(k.total);
+
+  document.getElementById('b-kenko').textContent   = man(m.kenko);
+  document.getElementById('b-nenkin').textContent  = man(m.nenkin);
+  document.getElementById('b-m-kaigo').textContent = m.kaigo > 0 ? man(m.kaigo) : '対象外';
+  document.getElementById('b-micro-ttl').textContent = man(m.honin);
+  document.getElementById('b-hojin').textContent   = man(m.hojin);
+}
+
+/* ── 初期化 ── */
+['age','income','salary'].forEach(id => setPct(document.getElementById(id)));
+update();
+</script>
+</body>
+</html>
