@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>会社員のままマイクロ法人 収支シミュレーター | Riz</title>
+<style>
+  :root {
+    --green-dark: #1A4A2A; --green-mid: #2D7A47; --green-light: #EAF4EE;
+    --gold: #8B6914; --gold-light: #FBF5E6; --text: #1C1C1C; --text-sub: #555;
+    --border: #D4E4D9; --white: #FFFFFF; --red: #C0392B;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif; background: #F5F8F6; color: var(--text); font-size: 14px; line-height: 1.7; }
+  header { background: var(--green-dark); color: #fff; padding: 28px 20px 22px; text-align: center; }
+  header .eyebrow { font-size: 11px; letter-spacing: 0.12em; color: #A8D5B5; margin-bottom: 6px; text-transform: uppercase; }
+  header h1 { font-size: 20px; font-weight: 700; line-height: 1.4; }
+  header p { font-size: 12px; color: #A8D5B5; margin-top: 6px; }
+  .container { max-width: 680px; margin: 0 auto; padding: 20px 16px 60px; }
+  .card { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 16px; }
+  .card-title { font-size: 13px; font-weight: 700; color: var(--green-dark); border-left: 3px solid var(--green-mid); padding-left: 10px; margin-bottom: 16px; }
+  .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .input-group { display: flex; flex-direction: column; gap: 4px; }
+  .input-group.full { grid-column: 1 / -1; }
+  label { font-size: 12px; color: var(--text-sub); font-weight: 600; }
+  input[type="number"] { border: 1px solid #C8DAD0; border-radius: 6px; padding: 9px 12px; font-size: 14px; color: var(--text); background: #FAFCFB; width: 100%; -moz-appearance: textfield; }
+  select { border: 1px solid #C8DAD0; border-radius: 6px; padding: 9px 12px; font-size: 13px; color: var(--text); background: #FAFCFB; width: 100%; }
+  input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+  input[type="number"]:focus, select:focus { outline: none; border-color: var(--green-mid); background: #fff; }
+  .input-hint { font-size: 11px; color: #999; }
+  .btn-calc { display: block; width: 100%; background: var(--green-dark); color: #fff; border: none; border-radius: 8px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 4px; letter-spacing: 0.05em; transition: background 0.2s; }
+  .btn-calc:hover { background: var(--green-mid); }
+  .result-section { display: none; } .result-section.visible { display: block; }
+  .phase-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+  .tab-btn { flex: 1; min-width: 80px; background: var(--green-light); border: 1px solid var(--border); border-radius: 6px; padding: 8px 6px; font-size: 12px; font-weight: 700; color: var(--green-dark); cursor: pointer; text-align: center; transition: all 0.15s; }
+  .tab-btn.active { background: var(--green-dark); color: #fff; border-color: var(--green-dark); }
+  .phase-panel { display: none; } .phase-panel.active { display: block; }
+  .cf-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .cf-table th { background: var(--green-light); color: var(--green-dark); padding: 8px 10px; text-align: left; font-weight: 700; font-size: 12px; }
+  .cf-table th:not(:first-child) { text-align: right; }
+  .cf-table td { padding: 8px 10px; border-bottom: 1px solid #EEF3F0; vertical-align: top; }
+  .cf-table td:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .cf-table tr:last-child td { border-bottom: none; font-weight: 700; background: #F0F7F2; }
+  .plus { color: var(--green-mid); } .minus { color: var(--red); } .neutral { color: var(--text-sub); }
+  .diff-badge { display: inline-block; background: var(--gold-light); border: 1px solid #D4A82A; border-radius: 4px; padding: 2px 8px; font-size: 11px; font-weight: 700; color: var(--gold); }
+  .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+  .summary-box { background: var(--green-light); border: 1px solid var(--border); border-radius: 8px; padding: 14px; text-align: center; }
+  .summary-box .label { font-size: 11px; color: var(--text-sub); margin-bottom: 4px; }
+  .summary-box .value { font-size: 18px; font-weight: 700; color: var(--green-dark); }
+  .summary-box.highlight { background: var(--green-dark); border-color: var(--green-dark); }
+  .summary-box.highlight .label { color: #A8D5B5; } .summary-box.highlight .value { color: #fff; }
+  .note-box { background: #FFF8E6; border: 1px solid #E5C840; border-radius: 8px; padding: 14px; font-size: 12px; color: #7A5C00; line-height: 1.6; margin-top: 12px; }
+  .note-box strong { display: block; margin-bottom: 4px; color: var(--gold); }
+  footer { text-align: center; padding: 20px; font-size: 11px; color: #999; line-height: 1.8; }
+  footer a { color: var(--green-mid); text-decoration: none; }
+  @media (max-width: 400px) {
+    .input-grid { grid-template-columns: 1fr; }
+    .summary-grid { grid-template-columns: 1fr; }
+    .cf-table { font-size: 12px; }
+    .cf-table td, .cf-table th { padding: 6px 6px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Riz｜法人設立シミュレーター（在職中編）</div>
+  <h1>会社員のままマイクロ法人<br>収支シミュレーター</h1>
+  <p>単身赴任手当を守りながら投信の税負担を圧縮する</p>
+</header>
+
+<div class="container">
+
+  <div class="card">
+    <div class="card-title">① あなたの数字を入れてください</div>
+    <div class="input-grid">
+      <div class="input-group">
+        <label>投信運用益（年間）</label>
+        <input type="number" id="inv" value="2000000" step="100000">
+        <span class="input-hint">個人口座で運用中の年間利益</span>
+      </div>
+      <div class="input-group">
+        <label>家賃・水道光熱費（月額）</label>
+        <input type="number" id="rent" value="150000" step="5000">
+        <span class="input-hint">合計額。法人は1/3を事務所費計上</span>
+      </div>
+      <div class="input-group">
+        <label>単身赴任手当（月額）</label>
+        <input type="number" id="allowance" value="60000" step="1000">
+        <span class="input-hint">会社が負担する旅費分（課税対象）</span>
+      </div>
+      <div class="input-group">
+        <label>旅費・個人負担分（月額）</label>
+        <input type="number" id="travel" value="60000" step="1000">
+        <span class="input-hint">MCが出張費として計上する分</span>
+      </div>
+      <div class="input-group">
+        <label>妻役員報酬（月額・Phase2から）</label>
+        <input type="number" id="spouse" value="60000" step="5000">
+        <span class="input-hint">※Phase1は¥0（配偶者は扶養のまま）。Phase2からこの金額を支払います</span>
+      </div>
+      <div class="input-group">
+        <label>税理士費用（年額）</label>
+        <input type="number" id="tax_accountant" value="200000" step="10000">
+        <span class="input-hint">記帳込みの目安</span>
+      </div>
+      <div class="input-group">
+        <label>その他販管費（年額）</label>
+        <input type="number" id="other" value="150000" step="10000">
+        <span class="input-hint">会計ソフト・バーチャルオフィス代等、MCに伴う純粋な費用</span>
+      </div>
+      <div class="input-group">
+        <label>設立費用（初年度のみ）</label>
+        <input type="number" id="setup" value="100000" step="10000">
+        <span class="input-hint">登記・備品等、Phase1のみ発生</span>
+      </div>
+      <div class="input-group">
+        <label>単身赴任手当の税率</label>
+        <select id="allowance_tax_rate">
+          <option value="0.15">15%（目安：課税所得〜195万円）</option>
+          <option value="0.20">20%（目安：課税所得195〜330万円）</option>
+          <option value="0.30">30%（目安：課税所得330〜695万円）</option>
+          <option value="0.33" selected>33%（目安：課税所得695〜900万円）</option>
+          <option value="0.43">43%（目安：課税所得900〜1,800万円）</option>
+          <option value="0.50">50%（目安：課税所得1,800〜4,000万円）</option>
+          <option value="0.55">55%（目安：課税所得4,000万円〜）</option>
+        </select>
+        <span class="input-hint">所得税＋住民税の合計税率（概算）。手当は給与所得として課税される前提</span>
+      </div>
+    </div>
+    <div style="margin-top: 16px;">
+      <button class="btn-calc" onclick="calculate()">シミュレーションを実行する</button>
+    </div>
+  </div>
+
+  <div class="result-section" id="results">
+
+    <div class="phase-tabs">
+      <button class="tab-btn active" onclick="switchTab('p1', this)">Phase 1<br><span style="font-weight:400;font-size:11px">設立〜1年目</span></button>
+      <button class="tab-btn" onclick="switchTab('p2', this)">Phase 2<br><span style="font-weight:400;font-size:11px">妻報酬・手当継続</span></button>
+      <button class="tab-btn" onclick="switchTab('sum', this)">累計<br><span style="font-weight:400;font-size:11px">5年間推移</span></button>
+    </div>
+
+    <div class="phase-panel active" id="panel-p1">
+      <div class="card">
+        <div class="card-title">Phase 1｜設立初年度：法人損益計算書（MC設立時）</div>
+        <table class="cf-table">
+          <thead><tr><th>項目</th><th>金額（円）</th></tr></thead>
+          <tbody id="p1-pl-rows"></tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-title">Phase 1｜家族キャッシュフロー比較（年間）</div>
+        <table class="cf-table">
+          <thead><tr><th>項目</th><th>MCなし</th><th>MCあり</th></tr></thead>
+          <tbody id="p1-cf-rows"></tbody>
+        </table>
+        <div class="note-box" style="margin-top:12px">
+          <strong>📌 Phase 1のポイント</strong>
+          Phase 1は「配偶者報酬なしの準備期間」です。配偶者はまだ扶養に入ったままで、社会保険への加入・単身赴任継続の切り替えはPhase 2から始まります。
+          この時期は子が在学中のため、単身赴任手当は両シナリオで受給済みです（課税後の金額で計算しています）。
+          MC設立コスト・固定費が発生するため、Phase 1は先行投資期間となります。
+        </div>
+      </div>
+    </div>
+
+    <div class="phase-panel" id="panel-p2">
+      <div class="card">
+        <div class="card-title">Phase 2｜妻報酬開始後：法人損益計算書（MC設立時）</div>
+        <table class="cf-table">
+          <thead><tr><th>項目</th><th>金額（円）</th></tr></thead>
+          <tbody id="p2-pl-rows"></tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-title">Phase 2｜家族キャッシュフロー比較（年間）</div>
+        <table class="cf-table">
+          <thead><tr><th>項目</th><th>MCなし</th><th>MCあり</th></tr></thead>
+          <tbody id="p2-cf-rows"></tbody>
+        </table>
+        <div class="summary-grid" id="p2-summary"></div>
+        <div class="note-box" style="margin-top:12px">
+          <strong>📌 Phase 2のポイント</strong>
+          Phase 2から妻役員報酬の支払いが始まり、妻が扶養から外れて社会保険に加入します。
+          MCなしでは子卒業後に単身赴任手当が消滅し、旅費分が全額自己負担になります。
+          MCありでは妻に収入があるため単身赴任が継続認定され、手当（課税後）を受給し続けられます。
+          社会保険料は妻役員報酬の金額に応じた等級で計算しています。
+        </div>
+      </div>
+    </div>
+
+    <div class="phase-panel" id="panel-sum">
+      <div class="card">
+        <div class="card-title">累計収支推移（MCなしとの差額）</div>
+        <div id="cumulative-bars"></div>
+        <div class="note-box" style="margin-top:12px">
+          <strong>📌 損益分岐点</strong>
+          Phase 1の先行投資は、Phase 2開始後に急速に回収されます。
+          退職の時期はあえて特定せず、Phase 2が続く前提で5年目まで試算しています。
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="note-box" style="margin-top:0">
+    <strong>⚠️ 免責事項</strong>
+    本シミュレーターは概算の参考値を提供するものです（協会けんぽ・厚生年金の料率は東京都・令和7年度目安を使用）。
+    単身赴任手当が課税対象かどうか、実際の税率は勤務先の規定・ご自身の所得状況により異なります。
+    実際の税務・社会保険処理は個別状況により異なりますので、設立前に必ず税理士・社労士にご相談ください。
+  </div>
+
+</div>
+
+<footer>
+  <a href="https://note.com/riz_invest_lab" target="_blank">Riz</a> ｜
+  <a href="https://x.com/riz_invest_lab" target="_blank">X（旧Twitter）</a>
+  <br>本ツールは個人の実践記録に基づく概算シミュレーターです。<br>
+  投資助言・売買推奨ではありません。
+</footer>
+
+<script>
+const KENPO_TABLE = [
+  [63000, 58000], [73000, 68000], [83000, 78000], [93000, 88000],
+  [101000, 98000], [107000, 104000], [114000, 110000], [122000, 118000],
+  [130000, 126000], [138000, 134000], [146000, 142000], [155000, 150000],
+  [165000, 160000], [175000, 170000], [185000, 180000], [195000, 190000],
+  [210000, 200000], [230000, 220000], [250000, 240000]
+];
+const KENPO_RATE = 0.1158;
+const KOUSEI_RATE = 0.183;
+const KOUSEI_FLOOR = 88000;
+const KOUSEI_CEIL_FOR_FLOOR = 93000;
+
+function kenpoStandard(monthly) {
+  for (const [upper, std] of KENPO_TABLE) { if (monthly < upper) return std; }
+  return KENPO_TABLE[KENPO_TABLE.length - 1][1];
+}
+function kouseiStandard(monthly) {
+  if (monthly < KOUSEI_CEIL_FOR_FLOOR) return KOUSEI_FLOOR;
+  return kenpoStandard(monthly);
+}
+function annualPremium(monthly) {
+  const kenpoAnnual = kenpoStandard(monthly) * 12 * KENPO_RATE;
+  const kouseiAnnual = kouseiStandard(monthly) * 12 * KOUSEI_RATE;
+  const total = kenpoAnnual + kouseiAnnual;
+  return { total: Math.round(total), individual: Math.round(total / 2), company: Math.round(total / 2) };
+}
+
+function fmt(n) {
+  if (n === 0) return '<span class="neutral">¥0</span>';
+  const s = Math.abs(n).toLocaleString();
+  return n > 0 ? `<span class="plus">＋¥${s}</span>` : `<span class="minus">▲¥${s}</span>`;
+}
+function fmtDiff(n) {
+  if (n === 0) return '<span class="neutral">¥0</span>';
+  const s = Math.abs(n).toLocaleString();
+  if (n > 0) return `<span class="diff-badge">＋¥${s}</span>`;
+  return `<span class="minus">▲¥${s}</span>`;
+}
+function row(label, a, b) {
+  const diff = b - a;
+  return `<tr><td>${label}</td><td>${fmt(a)}</td><td>${fmt(b)}</td><td>${fmtDiff(diff)}</td></tr>`;
+}
+function totalRow(label, a, b) {
+  const diff = b - a;
+  return `<tr><td><strong>${label}</strong></td><td><strong>${fmt(a)}</strong></td><td><strong>${fmt(b)}</strong></td><td><strong>${fmtDiff(diff)}</strong></td></tr>`;
+}
+
+function calculate() {
+  const inv = parseInt(document.getElementById('inv').value) || 0;
+  const rent = parseInt(document.getElementById('rent').value) || 0;
+  const allowance = parseInt(document.getElementById('allowance').value) || 0;
+  const travel = parseInt(document.getElementById('travel').value) || 0;
+  const spouseMonthly = parseInt(document.getElementById('spouse').value) || 0;
+  const taxAcc = parseInt(document.getElementById('tax_accountant').value) || 0;
+  const other = parseInt(document.getElementById('other').value) || 0;
+  const SETUP = parseInt(document.getElementById('setup').value) || 0;
+  const allowTaxRate = parseFloat(document.getElementById('allowance_tax_rate').value) || 0;
+
+  const CORP_TAX = 0.21;
+  const INV_TAX = 0.20315;
+  const EQUALMNT_TAX = 70000;
+
+  const rentOffice = Math.round((rent / 3) * 12);
+  const travelAnnual = travel * 12;
+  const allowanceAnnual = allowance * 12;
+  const allowanceAfterTax = Math.round(allowanceAnnual * (1 - allowTaxRate));
+  const spouseAnnual = spouseMonthly * 12;
+  const invAfterTax = Math.round(inv * (1 - INV_TAX));
+
+  const premiumP2 = annualPremium(spouseMonthly); // Phase2のみ発生（Phase1は報酬0）
+
+  function plRow(label, val) {
+    return `<tr><td>${label}</td><td>${fmt(val)}</td></tr>`;
+  }
+  function plTotalRow(label, val) {
+    return `<tr><td><strong>${label}</strong></td><td><strong>${fmt(val)}</strong></td></tr>`;
+  }
+
+  // ===== PHASE 1：法人損益計算書（役員報酬・社保はゼロ、設立費のみ計上） =====
+  const p1_income = inv;
+  const p1_exp_rep = 0;
+  const p1_exp_office = -rentOffice;
+  const p1_exp_travel = -travelAnnual;
+  const p1_exp_tax_acc = -taxAcc;
+  const p1_exp_other = -other;
+  const p1_exp_setup = -SETUP;
+  const p1_exp_shakaihoken = 0;
+  const p1_pretax = p1_income + p1_exp_rep + p1_exp_office + p1_exp_travel + p1_exp_tax_acc + p1_exp_other + p1_exp_setup + p1_exp_shakaihoken;
+  const p1_corp_tax = p1_pretax > 0 ? Math.round(p1_pretax * CORP_TAX) : 0;
+  const p1_tax_total = p1_corp_tax + EQUALMNT_TAX; // 赤字でも均等割は発生
+  const p1_net_income = p1_pretax - p1_tax_total;
+
+  let p1plhtml = '';
+  p1plhtml += plRow('収入：有価証券運用益', p1_income);
+  p1plhtml += plRow('費用：役員報酬（本人・妻）', p1_exp_rep);
+  p1plhtml += plRow('費用：事務所費用（家賃・水道光熱費按分）', p1_exp_office);
+  p1plhtml += plRow('費用：旅費交通費', p1_exp_travel);
+  p1plhtml += plRow('費用：税理士費用', p1_exp_tax_acc);
+  p1plhtml += plRow('費用：その他販管費', p1_exp_other);
+  p1plhtml += plRow('費用：設立費（初年度のみ）', p1_exp_setup);
+  p1plhtml += plRow('費用：社会保険料（会社負担分）', p1_exp_shakaihoken);
+  p1plhtml += plTotalRow('税引き前利益', p1_pretax);
+  p1plhtml += plRow('法人税等（法人税＋均等割¥70,000）', -p1_tax_total);
+  p1plhtml += plTotalRow('当期利益（内部留保／赤字なら欠損）', p1_net_income);
+  document.getElementById('p1-pl-rows').innerHTML = p1plhtml;
+
+  // ===== PHASE 1：家族キャッシュフロー比較 =====
+  const p1_mc_none_inv = invAfterTax;
+  const p1_mc_none_allow = allowanceAfterTax;
+  const p1_mc_none_rent = -(rent * 12);
+  const p1_mc_none_travel = -travelAnnual;
+  const p1_mc_none_total = p1_mc_none_inv + p1_mc_none_allow + p1_mc_none_rent + p1_mc_none_travel;
+
+  const p1_mc_yes_allow = allowanceAfterTax;
+  const p1_mc_yes_rent = -(rent * 12 - rentOffice);
+  const p1_mc_yes_total = p1_net_income + p1_mc_yes_allow + p1_mc_yes_rent;
+
+  let p1cfhtml = '';
+  p1cfhtml += row('有価証券（個人課税後 ／ 法人内部処理）', p1_mc_none_inv, 0);
+  p1cfhtml += row('法人当期利益（内部留保として家族資産に計上）', 0, p1_net_income);
+  p1cfhtml += row('単身赴任手当（会社支給・課税後）', p1_mc_none_allow, p1_mc_yes_allow);
+  p1cfhtml += row('家賃・水道光熱費 個人負担', p1_mc_none_rent, p1_mc_yes_rent);
+  p1cfhtml += row('旅費個人負担（MCありは法人負担のため¥0）', p1_mc_none_travel, 0);
+  p1cfhtml += totalRow('年間CF合計', p1_mc_none_total, p1_mc_yes_total);
+  document.getElementById('p1-cf-rows').innerHTML = p1cfhtml;
+
+  // ===== PHASE 2：法人損益計算書（妻報酬・社保が発生） =====
+  const p2_income = inv;
+  const p2_exp_rep = -spouseAnnual;
+  const p2_exp_office = -rentOffice;
+  const p2_exp_travel = -travelAnnual;
+  const p2_exp_tax_acc = -taxAcc;
+  const p2_exp_other = -other;
+  const p2_exp_shakaihoken = -premiumP2.company;
+  const p2_pretax = p2_income + p2_exp_rep + p2_exp_office + p2_exp_travel + p2_exp_tax_acc + p2_exp_other + p2_exp_shakaihoken;
+  const p2_corp_tax = p2_pretax > 0 ? Math.round(p2_pretax * CORP_TAX) : 0;
+  const p2_tax_total = p2_corp_tax + EQUALMNT_TAX;
+  const p2_net_income = p2_pretax - p2_tax_total;
+
+  let p2plhtml = '';
+  p2plhtml += plRow('収入：有価証券運用益', p2_income);
+  p2plhtml += plRow('費用：役員報酬（妻）', p2_exp_rep);
+  p2plhtml += plRow('費用：事務所費用（家賃・水道光熱費按分）', p2_exp_office);
+  p2plhtml += plRow('費用：旅費交通費', p2_exp_travel);
+  p2plhtml += plRow('費用：税理士費用', p2_exp_tax_acc);
+  p2plhtml += plRow('費用：その他販管費', p2_exp_other);
+  p2plhtml += plRow('費用：社会保険料（会社負担分）', p2_exp_shakaihoken);
+  p2plhtml += plTotalRow('税引き前利益', p2_pretax);
+  p2plhtml += plRow('法人税等（法人税＋均等割¥70,000）', -p2_tax_total);
+  p2plhtml += plTotalRow('当期利益（内部留保／赤字なら欠損）', p2_net_income);
+  document.getElementById('p2-pl-rows').innerHTML = p2plhtml;
+
+  // ===== PHASE 2：家族キャッシュフロー比較 =====
+  const fullTravel = (allowance + travel) * 12;
+  const p2_mc_none_inv = invAfterTax;
+  const p2_mc_none_rent = -(rent * 12);
+  const p2_mc_none_travel = -fullTravel;
+  const p2_mc_none_total = p2_mc_none_inv + p2_mc_none_rent + p2_mc_none_travel;
+
+  const spouseHandTake = spouseAnnual - premiumP2.individual;
+  const p2_mc_yes_allow = allowanceAfterTax;
+  const p2_mc_yes_rent = -(rent * 12 - rentOffice);
+  const p2_mc_yes_total = p2_net_income + p2_mc_yes_allow + spouseHandTake + p2_mc_yes_rent;
+
+  let p2cfhtml = '';
+  p2cfhtml += row('有価証券（個人課税後 ／ 法人内部処理）', p2_mc_none_inv, 0);
+  p2cfhtml += row('法人当期利益（内部留保として家族資産に計上／赤字なら欠損）', 0, p2_net_income);
+  p2cfhtml += row('単身赴任手当（会社支給・課税後）', 0, p2_mc_yes_allow);
+  p2cfhtml += row('妻役員報酬 手取り（社保控除後）', 0, spouseHandTake);
+  p2cfhtml += row('家賃・水道光熱費 個人負担', p2_mc_none_rent, p2_mc_yes_rent);
+  p2cfhtml += row('旅費個人負担', p2_mc_none_travel, 0);
+  p2cfhtml += totalRow('年間CF合計', p2_mc_none_total, p2_mc_yes_total);
+  document.getElementById('p2-cf-rows').innerHTML = p2cfhtml;
+
+  const premium = premiumP2; // 以降の参照互換用
+  const p2_deficit_fill = p2_net_income < 0 ? p2_net_income : 0;
+
+  const p2diff = p2_mc_yes_total - p2_mc_none_total;
+  document.getElementById('p2-summary').innerHTML = `
+    <div class="summary-box">
+      <div class="label">MCなし 年間CF</div>
+      <div class="value" style="color:var(--red)">${p2_mc_none_total < 0 ? '▲' : '＋'}¥${Math.abs(p2_mc_none_total).toLocaleString()}</div>
+    </div>
+    <div class="summary-box highlight">
+      <div class="label">MCあり 年間CF</div>
+      <div class="value">${p2_mc_yes_total < 0 ? '▲' : '＋'}¥${Math.abs(p2_mc_yes_total).toLocaleString()}</div>
+    </div>
+    <div class="summary-box" style="grid-column:1/-1;background:var(--gold-light);border-color:#D4A82A;">
+      <div class="label" style="color:var(--gold)">年間差額（MCありが有利な金額）</div>
+      <div class="value" style="color:var(--gold)">＋¥${p2diff.toLocaleString()}</div>
+    </div>
+    <div class="summary-box" style="grid-column:1/-1;background:#F5F8F6;border-style:dashed;">
+      <div class="label">参考：妻の社会保険料（年間・個人負担分）</div>
+      <div class="value" style="font-size:14px;color:var(--text-sub)">¥${premium.individual.toLocaleString()}（標準報酬月額：健保¥${kenpoStandard(spouseMonthly).toLocaleString()}／厚年¥${kouseiStandard(spouseMonthly).toLocaleString()}）</div>
+    </div>
+  `;
+
+  const p1diff = p1_mc_yes_total - p1_mc_none_total;
+  const years = [
+    { label: '1年目（Phase1）', cum: p1diff },
+    { label: '2年目（Phase2）', cum: p1diff + p2diff },
+    { label: '3年目（Phase2）', cum: p1diff + p2diff * 2 },
+    { label: '4年目（Phase2）', cum: p1diff + p2diff * 3 },
+    { label: '5年目（Phase2）', cum: p1diff + p2diff * 4 },
+  ];
+  const maxAbs = Math.max(...years.map(y => Math.abs(y.cum)));
+  let barHTML = '';
+  years.forEach(y => {
+    const pct = maxAbs > 0 ? Math.min(Math.abs(y.cum) / maxAbs * 100, 100) : 0;
+    const isNeg = y.cum < 0;
+    const sign = y.cum >= 0 ? '＋' : '▲';
+    const color = isNeg ? 'color:var(--red)' : 'color:var(--green-dark)';
+    barHTML += `
+      <div style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-sub);margin-bottom:4px;"><span>${y.label}</span><span style="${color};font-weight:700">${sign}¥${Math.abs(y.cum).toLocaleString()}</span></div>
+        <div style="background:#E8F0EB;border-radius:4px;height:10px;overflow:hidden;"><div style="height:100%;border-radius:4px;background:${isNeg ? '#E67E73' : 'var(--green-mid)'};width:${pct}%"></div></div>
+      </div>`;
+  });
+  const breakeven = p1diff + p2diff > 0
+    ? `Phase 2開始後 約${Math.ceil(Math.abs(p1diff) / (p2diff / 12))} ヶ月で先行投資を回収`
+    : '入力値をご確認ください';
+  barHTML += `<div class="note-box"><strong>📌 損益分岐</strong>${breakeven}</div>`;
+  document.getElementById('cumulative-bars').innerHTML = barHTML;
+
+  document.getElementById('results').classList.add('visible');
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.phase-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-' + id).classList.add('active');
+}
+</script>
+</body>
+</html>
