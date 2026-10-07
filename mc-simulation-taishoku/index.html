@@ -3,442 +3,522 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>退職後マイクロ法人 収支シミュレーター | Riz</title>
+<title>退職後の合同会社 収支シミュレーター｜Riz</title>
+<meta name="description" content="退職後に無職で過ごす場合と、自分の合同会社を作る場合（在職中に作る／失業手当の後に作る）に払うお金の合計を、社会保険料・税金・維持費・失業手当まで含めて比べるシミュレーターです。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --green-dark: #1A4A2A; --green-mid: #2D7A47; --green-light: #EAF4EE;
-    --gold: #8B6914; --gold-light: #FBF5E6; --text: #1C1C1C; --text-sub: #555;
-    --border: #D4E4D9; --white: #FFFFFF; --red: #C0392B;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif; background: #F5F8F6; color: var(--text); font-size: 14px; line-height: 1.7; }
-  header { background: var(--green-dark); color: #fff; padding: 28px 20px 22px; text-align: center; }
-  header .eyebrow { font-size: 11px; letter-spacing: 0.12em; color: #A8D5B5; margin-bottom: 6px; text-transform: uppercase; }
-  header h1 { font-size: 20px; font-weight: 700; line-height: 1.4; }
-  header p { font-size: 12px; color: #A8D5B5; margin-top: 6px; }
-  .container { max-width: 680px; margin: 0 auto; padding: 20px 16px 60px; }
-  .card { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 16px; }
-  .card-title { font-size: 13px; font-weight: 700; color: var(--green-dark); border-left: 3px solid var(--green-mid); padding-left: 10px; margin-bottom: 16px; }
-  .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .input-group { display: flex; flex-direction: column; gap: 4px; }
-  .input-group.full { grid-column: 1 / -1; }
-  label { font-size: 12px; color: var(--text-sub); font-weight: 600; }
-  input[type="number"] { border: 1px solid #C8DAD0; border-radius: 6px; padding: 9px 12px; font-size: 14px; color: var(--text); background: #FAFCFB; width: 100%; -moz-appearance: textfield; }
-  input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
-  input[type="number"]:focus { outline: none; border-color: var(--green-mid); background: #fff; }
-  .input-hint { font-size: 11px; color: #999; }
-  .btn-calc { display: block; width: 100%; background: var(--green-dark); color: #fff; border: none; border-radius: 8px; padding: 14px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 4px; letter-spacing: 0.05em; transition: background 0.2s; }
-  .btn-calc:hover { background: var(--green-mid); }
-  .result-section { display: none; } .result-section.visible { display: block; }
-  .phase-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
-  .tab-btn { flex: 1; min-width: 80px; background: var(--green-light); border: 1px solid var(--border); border-radius: 6px; padding: 8px 6px; font-size: 12px; font-weight: 700; color: var(--green-dark); cursor: pointer; text-align: center; transition: all 0.15s; }
-  .tab-btn.active { background: var(--green-dark); color: #fff; border-color: var(--green-dark); }
-  .phase-panel { display: none; } .phase-panel.active { display: block; }
-  .cf-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  .cf-table th { background: var(--green-light); color: var(--green-dark); padding: 8px 10px; text-align: left; font-weight: 700; font-size: 12px; }
-  .cf-table th:not(:first-child) { text-align: right; }
-  .cf-table td { padding: 8px 10px; border-bottom: 1px solid #EEF3F0; vertical-align: top; }
-  .cf-table td:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
-  .cf-table tr:last-child td { border-bottom: none; font-weight: 700; background: #F0F7F2; }
-  .plus { color: var(--green-mid); } .minus { color: var(--red); } .neutral { color: var(--text-sub); }
-  .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-  .summary-box { background: var(--green-light); border: 1px solid var(--border); border-radius: 8px; padding: 14px; text-align: center; }
-  .summary-box .label { font-size: 11px; color: var(--text-sub); margin-bottom: 4px; }
-  .summary-box .value { font-size: 18px; font-weight: 700; color: var(--green-dark); }
-  .summary-box.highlight { background: var(--green-dark); border-color: var(--green-dark); }
-  .summary-box.highlight .label { color: #A8D5B5; } .summary-box.highlight .value { color: #fff; }
-  .note-box { background: #FFF8E6; border: 1px solid #E5C840; border-radius: 8px; padding: 14px; font-size: 12px; color: #7A5C00; line-height: 1.6; margin-top: 12px; }
-  .note-box strong { display: block; margin-bottom: 4px; color: var(--gold); }
-  footer { text-align: center; padding: 20px; font-size: 11px; color: #999; line-height: 1.8; }
-  footer a { color: var(--green-mid); text-decoration: none; }
-  @media (max-width: 400px) {
-    .input-grid { grid-template-columns: 1fr; }
-    .summary-grid { grid-template-columns: 1fr; }
-    .cf-table { font-size: 12px; }
-    .cf-table td, .cf-table th { padding: 6px 6px; }
-  }
+:root{
+  --bg:#F5F3EE;--card:#FFFFFF;--ink:#2C2C2A;--ink2:#5F5E5A;--muted:#888780;--line:#E6E3DA;
+  --green:#1A4A2A;--green2:#1D9E75;--mint:#9FE1CB;--mint-bg:#EAF6F0;
+  --red:#A33B2B;--red-bg:#FBEDEA;--amber-bg:#FFF6E0;--amber:#8A5A00;--blue-bg:#EEF3FA;--blue:#2B4E7A;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans JP',sans-serif;font-size:15px;line-height:1.7;color:var(--ink);background:var(--bg);min-height:100vh}
+.header{background:var(--green);color:#fff;padding:2rem 1rem 1.75rem;text-align:center}
+.badge{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.12em;color:var(--green);background:var(--mint);padding:3px 12px;border-radius:100px;margin-bottom:.75rem}
+.header h1{font-size:1.2rem;font-weight:700;line-height:1.5;margin-bottom:.4rem}
+.header p{font-size:12px;color:var(--mint)}
+.container{max-width:680px;margin:0 auto;padding:1.5rem 16px 4rem}
+.section{margin-bottom:1.5rem}
+.section-title{font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--muted);margin-bottom:.6rem;padding-left:2px}
+.card{background:var(--card);border-radius:14px;padding:1.25rem;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.ig{margin-bottom:1.25rem}.ig:last-child{margin-bottom:0}
+.sub-h{font-size:13px;font-weight:700;color:var(--green);margin:1.25rem 0 .75rem;padding-top:1rem;border-top:1px solid var(--line)}
+.sub-h:first-child{margin-top:0;padding-top:0;border-top:none}
+.row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:.45rem}
+.lbl{font-size:13px;color:#444441;font-weight:500}
+.val{font-size:16px;font-weight:700;color:var(--green);text-align:right;white-space:nowrap}
+input[type=range]{width:100%;height:5px;-webkit-appearance:none;appearance:none;background:linear-gradient(to right,var(--green2) 0%,var(--green2) var(--pct,50%),#D3D1C7 var(--pct,50%),#D3D1C7 100%);border-radius:3px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--green);box-shadow:0 2px 5px rgba(0,0,0,.25)}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--green);border:none}
+.rl{display:flex;justify-content:space-between;font-size:10px;color:#B4B2A9;margin-top:3px}
+.tg{display:flex;gap:8px;flex-wrap:wrap}
+.tb{padding:6px 16px;border:1.5px solid #D3D1C7;border-radius:100px;background:#fff;color:var(--ink2);font-size:13px;font-family:inherit;cursor:pointer}
+.tb.active{background:var(--green);border-color:var(--green);color:#fff;font-weight:500}
+.hint{font-size:12px;color:#9C9A92;margin-top:.45rem;line-height:1.6}
+.cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px}
+.rc{border-radius:14px;padding:.9rem .6rem;text-align:center}
+.rc.k{background:var(--red-bg)}.rc.m{background:var(--mint-bg)}.rc.b{background:var(--blue-bg)}
+.rc .t{font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:.25rem;line-height:1.4}
+.rc .a{font-size:1.1rem;font-weight:700;line-height:1.3}
+.rc.k .a{color:var(--red)}.rc.m .a{color:var(--green)}.rc.b .a{color:var(--blue)}
+.rc .s{font-size:11px;color:var(--muted);margin-top:.25rem;line-height:1.5}
+.diff{background:var(--green);color:#fff;border-radius:14px;padding:1rem;text-align:center;margin-bottom:10px}
+.diff .t{font-size:12px;color:var(--mint)}
+.diff .a{font-size:1.05rem;font-weight:700;line-height:1.7}
+.diff .s{font-size:11px;color:var(--mint)}
+.alert{display:none;background:var(--amber-bg);color:var(--amber);font-size:12px;border-radius:10px;padding:.6rem .8rem;margin-bottom:10px;line-height:1.6}
+.alert.show{display:block}
+.tbl-wrap{background:#fff;border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,.06);overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:600px}
+th,td{padding:.55rem .7rem;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left;white-space:normal;min-width:12em;position:sticky;left:0;background:#fff}
+thead th:first-child{background:#F0EEE7}
+thead th{background:#F0EEE7;font-size:12px;color:var(--ink2);font-weight:700}
+tr.ttl td{font-weight:700;background:#FAF9F5}
+tr.sub td{font-size:12px;color:var(--muted)}
+.caption{font-size:12px;color:var(--muted);margin-top:.4rem;padding-left:2px}
+.formula{font-size:12px;color:var(--ink2);background:#fff;border-radius:10px;padding:.6rem .8rem;margin-bottom:.6rem;line-height:1.7}
+.notes{background:#fff;border-radius:14px;padding:1rem 1.25rem;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.notes li{font-size:12px;color:var(--ink2);margin-left:1.1rem;margin-bottom:.4rem;line-height:1.7}
+.links{text-align:center;margin-top:1.5rem}
+.links p{font-size:13px;color:var(--ink2);margin-bottom:.5rem}
+.btn{display:inline-block;padding:.6rem 1.4rem;border-radius:100px;background:var(--green);color:#fff;text-decoration:none;font-size:14px;font-weight:500;margin:.2rem}
+.btn.o{background:#fff;color:var(--green);border:1.5px solid var(--green)}
+.foot{text-align:center;font-size:11px;color:#9C9A92;margin-top:1.5rem;line-height:1.7}
+@media (max-width:520px){.cards{grid-template-columns:1fr}.rc .a{font-size:1.2rem}}
 </style>
 </head>
 <body>
 
-<header>
-  <div class="eyebrow">Riz｜法人設立シミュレーター（退職後編）</div>
-  <h1>退職後マイクロ法人<br>収支シミュレーター</h1>
-  <p>無職・国民健康保険と比較する</p>
-</header>
+<div class="header">
+  <span class="badge">RIZ</span>
+  <h1>退職後の合同会社 収支シミュレーター<br>無職 vs 自分の合同会社（在職中に作る／失業手当の後に作る）</h1>
+  <p>社会保険料・税金・維持費・失業手当まで含めた概算（名古屋市・協会けんぽ愛知支部 令和8年度料率）</p>
+</div>
 
 <div class="container">
 
-  <div class="card">
-    <div class="card-title">① あなたの数字を入れてください</div>
-    <div class="input-grid">
-      <div class="input-group">
-        <label>有価証券運用益（年間）</label>
-        <input type="number" id="inv" value="2000000" step="100000">
-        <span class="input-hint">法人に移管する投信・株の運用益</span>
-      </div>
-      <div class="input-group">
-        <label>家賃・水道光熱費（月額）</label>
-        <input type="number" id="rent" value="150000" step="5000">
-        <span class="input-hint">合計額。法人は1/3を事務所費計上</span>
-      </div>
-      <div class="input-group">
-        <label>旅費（月額）</label>
-        <input type="number" id="travel" value="10000" step="1000">
-        <span class="input-hint">法人の業務関連の出張・移動費</span>
-      </div>
-      <div class="input-group">
-        <label>本人役員報酬（月額）</label>
-        <input type="number" id="rep" value="60000" step="5000">
-        <span class="input-hint">社会保険加入のために必要</span>
-      </div>
-      <div class="input-group">
-        <label>税理士費用（年額）</label>
-        <input type="number" id="tax_accountant" value="200000" step="10000">
-        <span class="input-hint">記帳込みの目安</span>
-      </div>
-      <div class="input-group">
-        <label>その他販管費（年額）</label>
-        <input type="number" id="other" value="150000" step="10000">
-        <span class="input-hint">会計ソフト・通信費・什器等</span>
-      </div>
-      <div class="input-group">
-        <label>設立費用（初年度のみ）</label>
-        <input type="number" id="setup" value="100000" step="10000">
-        <span class="input-hint">登記・備品等</span>
-      </div>
-      <div class="input-group">
-        <label>同居家族人数</label>
-        <input type="number" id="family" value="4" step="1">
-        <span class="input-hint">本人含む。国保の均等割・扶養人数に使用</span>
-      </div>
-      <div class="input-group">
-        <label>退職時の前年収入</label>
-        <input type="number" id="prev_income" value="10000000" step="500000">
-        <span class="input-hint">国保初年度の算定に使用</span>
-      </div>
-    </div>
-    <div style="margin-top: 16px;">
-      <button class="btn-calc" onclick="calculate()">シミュレーションを実行する</button>
+  <div class="section">
+    <p class="section-title">比べる3つの道</p>
+    <div class="formula">
+      <b>①</b> 合同会社を作らず、無職で過ごす（国保＋国民年金、失業手当あり）<br>
+      <b>②</b> 勤務先にいるうちに合同会社を作り、退職と同時に合同会社の社会保険に移る（失業手当なし）<br>
+      <b>③</b> 退職して失業手当を受け取ってから、合同会社を作る
     </div>
   </div>
 
-  <div class="result-section" id="results">
+  <div class="section">
+    <p class="section-title">入力</p>
+    <div class="card">
 
-    <div class="phase-tabs">
-      <button class="tab-btn active" onclick="switchTab('y1', this)">1年目<br><span style="font-weight:400;font-size:11px">退職直後</span></button>
-      <button class="tab-btn" onclick="switchTab('y2', this)">2年目〜<br><span style="font-weight:400;font-size:11px">定常状態</span></button>
-      <button class="tab-btn" onclick="switchTab('sum', this)">累計<br><span style="font-weight:400;font-size:11px">5年間推移</span></button>
-    </div>
-
-    <div class="phase-panel active" id="panel-y1">
-      <div class="card">
-        <div class="card-title">退職1年目｜法人損益計算書（MCあり）</div>
-        <table class="cf-table">
-          <thead><tr><th>項目</th><th>金額（円）</th></tr></thead>
-          <tbody id="y1-pl-rows"></tbody>
-        </table>
+      <p class="sub-h">家族と勤務先の条件</p>
+      <div class="ig">
+        <div class="row"><span class="lbl">本人の年齢（退職時）</span><span class="val"><span id="v-age">55</span>歳</span></div>
+        <input type="range" id="age" min="30" max="64" value="55" step="1">
+        <div class="rl"><span>30歳</span><span>64歳</span></div>
       </div>
-      <div class="card">
-        <div class="card-title">退職1年目｜家族キャッシュフロー比較</div>
-        <table class="cf-table">
-          <thead><tr><th>項目</th><th>無職（国保）</th><th>MCあり</th></tr></thead>
-          <tbody id="y1-cf-rows"></tbody>
-        </table>
-        <div class="summary-grid" id="y1-summary"></div>
-        <div class="note-box" style="margin-top:12px">
-          <strong>📌 1年目のポイント</strong>
-          無職の場合、国保は前年（会社員時代）の高い収入をもとに算定されるため、上限に近づきやすい年です。
-          MCありは、役員報酬に応じた社会保険料に切り替わるため、退職直後から保険料が安定します。
+      <div class="ig">
+        <div class="row" style="margin-bottom:.6rem"><span class="lbl">配偶者</span></div>
+        <div class="tg" id="sp">
+          <button class="tb" data-v="none">なし</button>
+          <button class="tb" data-v="under40">40歳未満</button>
+          <button class="tb active" data-v="40to59">40〜59歳</button>
+          <button class="tb" data-v="60plus">60〜64歳</button>
+        </div>
+        <p class="hint">配偶者に収入がなく、扶養に入る前提です。</p>
+      </div>
+      <div class="ig">
+        <div class="row" style="margin-bottom:.6rem"><span class="lbl">子どもの人数（18歳未満）</span></div>
+        <div class="tg" id="kids">
+          <button class="tb" data-v="0">0人</button>
+          <button class="tb" data-v="1">1人</button>
+          <button class="tb active" data-v="2">2人</button>
+          <button class="tb" data-v="3">3人</button>
+          <button class="tb" data-v="4">4人</button>
         </div>
       </div>
-    </div>
-
-    <div class="phase-panel" id="panel-y2">
-      <div class="card">
-        <div class="card-title">2年目以降｜法人損益計算書（MCあり）</div>
-        <table class="cf-table">
-          <thead><tr><th>項目</th><th>金額（円）</th></tr></thead>
-          <tbody id="y2-pl-rows"></tbody>
-        </table>
+      <div class="ig">
+        <div class="row"><span class="lbl">勤務先での退職前の年収（給与）</span><span class="val">¥<span id="v-inc">8,000,000</span></span></div>
+        <input type="range" id="inc" min="3000000" max="20000000" value="8000000" step="100000">
+        <div class="rl"><span>300万円</span><span>2,000万円</span></div>
+        <p class="hint">①と③の、退職1年目の国保はこの年収をもとに計算されます。</p>
       </div>
-      <div class="card">
-        <div class="card-title">2年目以降｜家族キャッシュフロー比較</div>
-        <table class="cf-table">
-          <thead><tr><th>項目</th><th>無職（国保）</th><th>MCあり</th></tr></thead>
-          <tbody id="y2-cf-rows"></tbody>
-        </table>
-        <div class="note-box" style="margin-top:12px">
-          <strong>📌 2年目以降のポイント</strong>
-          国保も前年所得（運用益ベース）に置き換わるため、1年目より下がります。
-          それでも家族の人数分だけ均等割が積み上がる国保に対し、
-          MCありは家族を協会けんぽの被扶養者にできるため追加保険料が発生しません。
+      <div class="ig">
+        <div class="row" style="margin-bottom:.6rem"><span class="lbl">退職の理由</span></div>
+        <div class="tg" id="reason">
+          <button class="tb active" data-v="self">自己都合</button>
+          <button class="tb" data-v="company">勤務先の都合</button>
         </div>
+        <p class="hint">切り替えると、失業手当の日数の目安（雇用保険20年以上・45〜59歳）も変わります。勤務先の都合の場合は、国保の軽減も反映します。</p>
+      </div>
+      <div class="ig">
+        <div class="row"><span class="lbl">①で2年目以降に確定申告する所得</span><span class="val">¥<span id="v-inc2">0</span></span></div>
+        <input type="range" id="inc2" min="0" max="5000000" value="0" step="50000">
+        <div class="rl"><span>0円</span><span>500万円</span></div>
+        <p class="hint">特定口座（源泉徴収あり）で確定申告しない投資の利益は含めません。</p>
+      </div>
+
+      <p class="sub-h">失業手当（①と③が受け取る）</p>
+      <div class="ig">
+        <div class="row"><span class="lbl">日額</span><span class="val">¥<span id="v-ui">9,110</span></span></div>
+        <input type="range" id="ui" min="2000" max="10000" value="9110" step="10">
+        <div class="rl"><span>2,000円</span><span>10,000円</span></div>
+        <p class="hint">日額には年齢ごとの上限があり、毎年8月に見直されます。ハローワークの案内でご確認ください。</p>
+      </div>
+      <div class="ig">
+        <div class="row"><span class="lbl">日数</span><span class="val"><span id="v-uid">150</span>日</span></div>
+        <input type="range" id="uid" min="90" max="330" value="150" step="30">
+        <div class="rl"><span>90日</span><span>330日</span></div>
+        <p class="hint" id="h-uid">—</p>
+      </div>
+
+      <p class="sub-h">自分の合同会社（1年あたり）</p>
+      <div class="ig">
+        <div class="row"><span class="lbl">合同会社で運用する利益（在職中）</span><span class="val">¥<span id="v-gain0">1,000,000</span></span></div>
+        <input type="range" id="gain0" min="0" max="10000000" value="1000000" step="100000">
+        <div class="rl"><span>0円</span><span>1,000万円</span></div>
+        <p class="hint">②で、在職中に合同会社で運用する利益です。在職中は報酬・社会保険料を0円として計算します。</p>
+      </div>
+      <div class="ig">
+        <div class="row"><span class="lbl">合同会社で運用する利益（退職後）</span><span class="val">¥<span id="v-gain">2,000,000</span></span></div>
+        <input type="range" id="gain" min="0" max="10000000" value="2000000" step="100000">
+        <div class="rl"><span>0円</span><span>1,000万円</span></div>
+        <p class="hint">合同会社を作らない場合は、同じ利益を個人の特定口座で受け取り、20.315%の税金がかかる前提で比べます。</p>
+      </div>
+      <div class="ig">
+        <div class="row"><span class="lbl">自分への報酬（月額・退職後）</span><span class="val">¥<span id="v-sal">60,000</span></span></div>
+        <input type="range" id="sal" min="30000" max="300000" value="60000" step="5000">
+        <div class="rl"><span>3万円</span><span>30万円</span></div>
+        <p class="hint">在職中は報酬を受け取らない前提です。月¥63,000未満なら健康保険、月¥93,000未満なら厚生年金が最も低い等級になります。</p>
+      </div>
+      <div class="ig">
+        <div class="row"><span class="lbl">地代家賃（自宅の一部を事務所として使う分）</span><span class="val">¥<span id="v-rent">300,000</span></span></div>
+        <input type="range" id="rent" min="0" max="1200000" value="300000" step="10000">
+        <div class="rl"><span>0円</span><span>120万円</span></div>
+      </div>
+      <div class="ig">
+        <div class="row"><span class="lbl">その他経費（水道光熱費・通信費・備品などの合計）</span><span class="val">¥<span id="v-oth">300,000</span></span></div>
+        <input type="range" id="oth" min="0" max="1200000" value="300000" step="10000">
+        <div class="rl"><span>0円</span><span>120万円</span></div>
+        <p class="hint">経費にできるのは、業務に使う分だけです。</p>
+      </div>
+      <div class="ig">
+        <div class="row"><span class="lbl">業務委託料（税理士）合同会社の1年目</span><span class="val">¥<span id="v-tax1">200,000</span></span></div>
+        <input type="range" id="tax1" min="0" max="500000" value="200000" step="10000">
+        <div class="rl"><span>0円</span><span>50万円</span></div>
+      </div>
+      <div class="ig">
+        <div class="row"><span class="lbl">業務委託料（税理士）2年目以降</span><span class="val">¥<span id="v-tax2">50,000</span></span></div>
+        <input type="range" id="tax2" min="0" max="500000" value="50000" step="10000">
+        <div class="rl"><span>0円</span><span>50万円</span></div>
+        <p class="hint">2年目以降は自分で申告し、税理士はスポット相談だけにする場合は少なく入力してください。</p>
+      </div>
+      <div class="ig">
+        <div class="row"><span class="lbl">支払手数料（会計ソフトなど）</span><span class="val">¥<span id="v-soft">40,000</span></span></div>
+        <input type="range" id="soft" min="0" max="200000" value="40000" step="5000">
+        <div class="rl"><span>0円</span><span>20万円</span></div>
+      </div>
+      <div class="ig">
+        <div class="row"><span class="lbl">設立費用（1回だけ）</span><span class="val">¥<span id="v-est">100,000</span></span></div>
+        <input type="range" id="est" min="0" max="300000" value="100000" step="10000">
+        <div class="rl"><span>0円</span><span>30万円</span></div>
+        <p class="hint">住民税の均等割（年¥70,000）は、利益に関係なく自動でかかります。</p>
+      </div>
+
+      <p class="sub-h">期間</p>
+      <div class="ig">
+        <div class="row"><span class="lbl">②で合同会社を持つ在職中の年数</span><span class="val"><span id="v-zy">1</span>年</span></div>
+        <input type="range" id="zy" min="1" max="5" value="1" step="1">
+        <div class="rl"><span>1年</span><span>5年</span></div>
+      </div>
+      <div class="ig">
+        <div class="row"><span class="lbl">比べる退職後の年数</span><span class="val"><span id="v-ty">5</span>年</span></div>
+        <input type="range" id="ty" min="1" max="10" value="5" step="1">
+        <div class="rl"><span>1年</span><span>10年</span></div>
       </div>
     </div>
+  </div>
 
-    <div class="phase-panel" id="panel-sum">
-      <div class="card">
-        <div class="card-title">累計収支推移（MCなしとの差額）</div>
-        <div id="cumulative-bars"></div>
-      </div>
+  <div class="section">
+    <p class="section-title" id="t-res">結果：払うお金の合計（少ないほど得）</p>
+    <div class="cards">
+      <div class="rc k"><div class="t">① 無職</div><div class="a" id="r1">—</div><div class="s" id="r1s">—</div></div>
+      <div class="rc m"><div class="t">② 在職中に作る</div><div class="a" id="r2">—</div><div class="s" id="r2s">—</div></div>
+      <div class="rc b"><div class="t">③ 失業手当の後に作る</div><div class="a" id="r3">—</div><div class="s" id="r3s">—</div></div>
     </div>
-
+    <div class="alert" id="al"></div>
+    <div class="diff"><div class="t">①（無職）との差</div><div class="a" id="rd">—</div><div class="s" id="rds">—</div></div>
   </div>
 
-  <div class="note-box" style="margin-top:0">
-    <strong>⚠️ 免責事項</strong>
-    本シミュレーターは概算の参考値を提供するものです（国保は東京23区目安の料率・上限額、社会保険は協会けんぽ東京都・厚生年金の令和7年度目安を使用）。
-    実際の税務・社会保険処理はお住まいの自治体・個別状況により異なります。
-    設立前に必ず税理士・社労士にご相談ください。
+  <div class="section">
+    <p class="section-title">内訳</p>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>項目</th><th>① 無職</th><th>② 在職中に作る</th><th>③ 失業手当の後</th></tr></thead>
+      <tbody>
+        <tr><td id="l-si">社会保険料（退職後・家族全体）</td><td id="t1-si">—</td><td id="t2-si">—</td><td id="t3-si">—</td></tr>
+        <tr><td>運用益などにかかる税金</td><td id="t1-tx">—</td><td id="t2-tx">—</td><td id="t3-tx">—</td></tr>
+        <tr><td>合同会社の設立費・維持費</td><td>¥0</td><td id="t2-mt">—</td><td id="t3-mt">—</td></tr>
+        <tr><td>受け取った失業手当</td><td id="t1-ui">—</td><td>¥0</td><td id="t3-ui">—</td></tr>
+        <tr class="ttl"><td>払うお金の合計（少ないほど得）</td><td id="t1-t">—</td><td id="t2-t">—</td><td id="t3-t">—</td></tr>
+      </tbody>
+    </table></div>
+    <p class="caption" id="c-t">▲ 表1：払うお金の合計</p>
+    <p class="hint">自分への報酬や家賃・光熱費は、合同会社がなくても生活費として払うお金なので含めていません。</p>
   </div>
 
+  <div class="section">
+    <p class="section-title">参考：退職後1年分の、自分の合同会社の損益</p>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>項目</th><th>合同会社の1年目</th><th>2年目以降</th></tr></thead>
+      <tbody>
+        <tr><td>合同会社の運用益</td><td id="p-g1">—</td><td id="p-g2">—</td></tr>
+        <tr><td>自分への報酬</td><td id="p-s1">—</td><td id="p-s2">—</td></tr>
+        <tr><td>社会保険料（合同会社の負担分）</td><td id="p-h1">—</td><td id="p-h2">—</td></tr>
+        <tr><td>家賃・光熱費など</td><td id="p-r1">—</td><td id="p-r2">—</td></tr>
+        <tr><td>税理士・会計ソフト</td><td id="p-t1">—</td><td id="p-t2">—</td></tr>
+        <tr class="ttl"><td>税金がかかる利益</td><td id="p-p1">—</td><td id="p-p2">—</td></tr>
+        <tr><td>合同会社の税金（法人税など）</td><td id="p-c1">—</td><td id="p-c2">—</td></tr>
+        <tr class="sub"><td>参考：同じ運用益を個人で受け取った場合の税金</td><td id="p-i1">—</td><td id="p-i2">—</td></tr>
+      </tbody>
+    </table></div>
+    <p class="caption">▲ 表2：税金が安くなる理由（経費を先に払い、残った利益にだけ税金がかかる）</p>
+  </div>
+
+  <div class="section">
+    <p class="section-title">ご注意</p>
+    <div class="notes"><ul>
+      <li>社会保険料は、連載第3回のシミュレーターと同じ計算です（名古屋市国保・協会けんぽ愛知支部の令和8年度料率）。年齢・家族構成は期間中変わらない前提です。</li>
+      <li>法人税などは、法人税（800万円以下15%）・地方法人税・法人住民税の法人税割7%・事業税・特別法人事業税で計算しています（中小法人の軽減税率を前提）。赤字の繰越は考慮していません。</li>
+      <li>①の税金は、運用益を個人の特定口座で受け取る前提（20.315%）です。②③の維持費には、税理士・会計ソフト・住民税の均等割（年¥70,000）を含みます。</li>
+      <li>③は、退職後に失業手当を受け取り終えてから合同会社を作る前提です（待期7日＋自己都合の給付制限1か月＋支給日数から、作る時期を自動で決めています）。それまでの期間は国保と国民年金に入ります。</li>
+      <li>在職中に合同会社を作り、退職後も役員を続ける場合、失業手当は受け取れないと考えておく方が安全です（最終的にはハローワークの判断です）。</li>
+      <li>報酬にかかる所得税・住民税は、基礎控除・社会保険料控除・配偶者控除のみで概算しています。</li>
+      <li>家賃などを合同会社の経費にできるのは、業務に使っている分だけです。本ツールは概算であり、税務・社会保険の助言ではありません。実際の判断は、税理士・社会保険労務士・ハローワークにご確認ください。</li>
+    </ul></div>
+  </div>
+
+  <div class="links">
+    <p>解説記事（連載「会社員のまま『自分の会社』をつくる記録」）</p>
+    <a class="btn" href="https://note.com/riz_invest_lab" target="_blank" rel="noopener">Rizのnoteへ</a>
+    <a class="btn o" href="../shakai-hoken/">社会保険料だけを比べる（第3回）</a>
+  </div>
+
+  <div class="foot">
+    <p>Riz｜サラリーマンのまま会社づくり</p>
+    <p>本ツールは個人の実践記録にもとづく参考情報であり、税務・社会保険の助言ではありません。</p>
+  </div>
 </div>
 
-<footer>
-  <a href="https://note.com/riz_invest_lab" target="_blank">Riz</a> ｜
-  <a href="https://x.com/riz_invest_lab" target="_blank">X（旧Twitter）</a>
-  <br>本ツールは個人の実践記録に基づく概算シミュレーターです。<br>
-  投資助言・売買推奨ではありません。
-</footer>
-
 <script>
-// ===== 協会けんぽ・厚生年金（低額帯のみ・2026年目安） =====
-const KENPO_TABLE = [
-  [63000, 58000], [73000, 68000], [83000, 78000], [93000, 88000],
-  [101000, 98000], [107000, 104000], [114000, 110000], [122000, 118000],
-  [130000, 126000], [138000, 134000], [146000, 142000], [155000, 150000],
-  [165000, 160000], [175000, 170000], [185000, 180000], [195000, 190000],
-  [210000, 200000], [230000, 220000], [250000, 240000]
-];
-const KENPO_RATE = 0.1158;
-const KOUSEI_RATE = 0.183;
-const KOUSEI_FLOOR = 88000;
-const KOUSEI_CEIL_FOR_FLOOR = 93000;
+/* ── 名古屋市 国保 令和8年度 ── */
+const KH = {
+  iryo:  {s:0.0883, k:50591, lim:670000},
+  shien: {s:0.0258, k:15784, lim:260000},
+  kaigo: {s:0.0234, k:16120, lim:170000},
+  kodomo:{s:0.0026, k:1771, kAdult:92, lim:30000}
+};
+const KISO = 430000;
+const KEIGEN = {base:430000, per5:305000, per2:560000};
+/* ── 協会けんぽ愛知支部 令和8年度 ── */
+const KP = {ken:0.0993, kai:0.0162, ko:0.0023, nen:0.183, kyoshutsu:0.0036};
+const NENKIN_MONTH = 17920;
+const GRADES = [[63000,58000],[73000,68000],[83000,78000],[93000,88000],[101000,98000],[107000,104000],[114000,110000],[122000,118000],[130000,126000],[138000,134000],[146000,142000],[155000,150000],[165000,160000],[175000,170000],[185000,180000],[195000,190000],[210000,200000],[230000,220000],[250000,240000],[270000,260000],[290000,280000],[310000,300000],[330000,320000]];
+/* ── 税 ── */
+const T_IND = 0.20315;      // 特定口座の税率
+const KINTO = 70000;        // 法人住民税の均等割
 
-function kenpoStandard(monthly) {
-  for (const [upper, std] of KENPO_TABLE) { if (monthly < upper) return std; }
-  return KENPO_TABLE[KENPO_TABLE.length - 1][1];
+const st = {spouse:'40to59', kids:2, reason:'self'};
+
+function kyuyoShotoku(x){
+  if(x<=1900000) return Math.max(0,x-650000);
+  if(x<=3600000) return x*0.7-80000;
+  if(x<=6600000) return x*0.8-440000;
+  if(x<=8500000) return x*0.9-1100000;
+  return x-1950000;
 }
-function kouseiStandard(monthly) {
-  if (monthly < KOUSEI_CEIL_FOR_FLOOR) return KOUSEI_FLOOR;
-  return kenpoStandard(monthly);
+function hyojun(pay){ for(const [u,v] of GRADES){ if(pay<u) return v; } return 320000; }
+function members(age){
+  const sp = st.spouse;
+  const adults = 1 + (sp==='none'?0:1);
+  const all = adults + st.kids;
+  let kaigo = (age>=40 && age<=64)?1:0;
+  if(sp==='40to59'||sp==='60plus') kaigo += 1;
+  let nenkin = age<60?1:0;
+  if(sp==='under40'||sp==='40to59') nenkin += 1;
+  return {adults, all, kaigo, nenkin};
 }
-function annualPremium(monthly) {
-  const kenpoAnnual = kenpoStandard(monthly) * 12 * KENPO_RATE;
-  const kouseiAnnual = kouseiStandard(monthly) * 12 * KOUSEI_RATE;
-  const total = kenpoAnnual + kouseiAnnual;
-  return { total: Math.round(total), individual: Math.round(total / 2), company: Math.round(total / 2) };
+function calcKokuho(shotoku, age, keigenRate){
+  const m = members(age);
+  const base = Math.max(0, shotoku - KISO);
+  const r = 1 - keigenRate;
+  const iryo  = Math.min(base*KH.iryo.s  + KH.iryo.k*m.all*r, KH.iryo.lim);
+  const shien = Math.min(base*KH.shien.s + KH.shien.k*m.all*r, KH.shien.lim);
+  const kaigo = m.kaigo>0 ? Math.min(base*KH.kaigo.s + KH.kaigo.k*m.kaigo*r, KH.kaigo.lim) : 0;
+  const ko    = Math.min(base*KH.kodomo.s + (KH.kodomo.k+KH.kodomo.kAdult)*m.adults*r, KH.kodomo.lim);
+  const kokuho = Math.round(iryo)+Math.round(shien)+Math.round(kaigo)+Math.round(ko);
+  return kokuho + NENKIN_MONTH*12*m.nenkin;
 }
-
-// ===== 国民健康保険（東京23区・目安料率） =====
-const KOKUHO_RATE_IRYO = 0.0716;
-const KOKUHO_RATE_SHIEN = 0.0228;
-const KOKUHO_RATE_KAIGO = 0.0225; // 40〜64歳の被保険者分のみ（本人1名分と仮定）
-const KOKUHO_KINTO_IRYO = 47300;
-const KOKUHO_KINTO_SHIEN = 16800;
-const KOKUHO_KINTO_KAIGO = 16600; // 介護該当者1名分と仮定
-const KOKUHO_CAP_IRYO = 660000;
-const KOKUHO_CAP_SHIEN = 260000;
-const KOKUHO_CAP_KAIGO = 170000;
-const KOKUHO_KISO_KOJO = 430000; // 基礎控除（住民税ベース簡易近似）
-const KOKUMIN_NENKIN = 203760;   // 国民年金・1人あたり年額（令和7年度目安）
-
-function kokuho(prevIncome, familyCount) {
-  const base = Math.max(0, prevIncome - KOKUHO_KISO_KOJO);
-  let iryo = base * KOKUHO_RATE_IRYO + familyCount * KOKUHO_KINTO_IRYO;
-  let shien = base * KOKUHO_RATE_SHIEN + familyCount * KOKUHO_KINTO_SHIEN;
-  let kaigo = base * KOKUHO_RATE_KAIGO + KOKUHO_KINTO_KAIGO;
-  iryo = Math.min(iryo, KOKUHO_CAP_IRYO);
-  shien = Math.min(shien, KOKUHO_CAP_SHIEN);
-  kaigo = Math.min(kaigo, KOKUHO_CAP_KAIGO);
-  return Math.round(iryo + shien + kaigo);
+function keigenRate(shotoku, age){
+  const m = members(age);
+  if(shotoku <= KEIGEN.base) return 0.7;
+  if(shotoku <= KEIGEN.base + KEIGEN.per5*m.all) return 0.5;
+  if(shotoku <= KEIGEN.base + KEIGEN.per2*m.all) return 0.2;
+  return 0;
 }
-
-function fmt(n) {
-  if (n === 0) return '<span class="neutral">¥0</span>';
-  const s = Math.abs(n).toLocaleString();
-  return n > 0 ? `<span class="plus">＋¥${s}</span>` : `<span class="minus">▲¥${s}</span>`;
+function calcCorpSI(pay, age){
+  const h = hyojun(pay), n = Math.max(88000, h);
+  const ken = Math.round(h*KP.ken*12);
+  const kai = (age>=40 && age<=64) ? Math.round(h*KP.kai*12) : 0;
+  const ko  = Math.round(h*KP.ko*12);
+  const nen = Math.round(n*KP.nen*12);
+  const kyo = Math.round(n*KP.kyoshutsu*12);
+  const shared = ken+kai+ko+nen;
+  const self = Math.round(shared/2);
+  return {total: shared+kyo, self, company: shared-self+kyo};
 }
-function row(label, a, b) {
-  const diff = b - a;
-  const s = Math.abs(diff).toLocaleString();
-  const diffHtml = diff === 0 ? '<span class="neutral">¥0</span>' : (diff > 0 ? `<span class="plus">＋¥${s}</span>` : `<span class="minus">▲¥${s}</span>`);
-  return `<tr><td>${label}</td><td>${fmt(a)}</td><td>${fmt(b)}</td><td>${diffHtml}</td></tr>`;
+/* 法人税など（所得に応じた分）：中小法人 */
+function corpTax(p){
+  if(p<=0) return 0;
+  const hojin = 0.15*Math.min(p,8e6) + 0.232*Math.max(0,p-8e6);
+  const jigyo = 0.035*Math.min(p,4e6) + 0.053*Math.min(Math.max(0,p-4e6),4e6) + 0.07*Math.max(0,p-8e6);
+  return hojin*(1+0.103+0.07) + jigyo*1.37;
 }
-function totalRow(label, a, b) {
-  const diff = b - a;
-  const s = Math.abs(diff).toLocaleString();
-  const diffHtml = diff === 0 ? '<span class="neutral">¥0</span>' : (diff > 0 ? `<span class="plus">＋¥${s}</span>` : `<span class="minus">▲¥${s}</span>`);
-  return `<tr><td><strong>${label}</strong></td><td><strong>${fmt(a)}</strong></td><td><strong>${fmt(b)}</strong></td><td><strong>${diffHtml}</strong></td></tr>`;
-}
-
-function calcYear(invAfterTax, invRaw, rent, travelAnnual, taxAcc, other, setupCost, repMonthly, kokuhoAmount, familyCount) {
-  const CORP_TAX = 0.21;
-  const EQUALMNT_TAX = 70000;
-  const rentOffice = Math.round((rent / 3) * 12);
-  const repAnnual = repMonthly * 12;
-  const premium = annualPremium(repMonthly);
-
-  // 無職（国保）
-  const none_total = invAfterTax - (rent * 12) - kokuhoAmount - (KOKUMIN_NENKIN * 2);
-
-  // MCあり：法人損益計算書
-  const income = invRaw;
-  const exp_rep = -repAnnual;
-  const exp_office = -rentOffice;
-  const exp_travel = -travelAnnual;
-  const exp_tax_acc = -taxAcc;
-  const exp_other = -other;
-  const exp_setup = -setupCost;
-  const exp_shakaihoken = -premium.company;
-  const pretax = income + exp_rep + exp_office + exp_travel + exp_tax_acc + exp_other + exp_setup + exp_shakaihoken;
-  const corpTax = pretax > 0 ? Math.round(pretax * CORP_TAX) : 0;
-  const taxTotal = corpTax + EQUALMNT_TAX;
-  const netIncome = pretax - taxTotal;
-
-  // MCあり：個人側
-  const repHandTake = repAnnual - premium.individual;
-  const rentIndiv = -(rent * 12 - rentOffice);
-  const mc_total = netIncome + repHandTake + rentIndiv;
-
-  return {
-    none_total, mc_total, repHandTake, rentIndiv, netIncome,
-    pl: { income, exp_rep, exp_office, exp_travel, exp_tax_acc, exp_other, exp_setup, exp_shakaihoken, pretax, taxTotal, netIncome }
-  };
+/* 報酬にかかる所得税・住民税（概算） */
+function payTax(annualPay, selfSI){
+  const ks = kyuyoShotoku(annualPay);
+  const hasSp = st.spouse!=='none';
+  const fuyo = (hasSp?1:0) + st.kids;
+  const itBase = Math.max(0, Math.floor((ks - 580000 - selfSI - (hasSp?380000:0))/1000)*1000);
+  let it;
+  if(itBase<=1950000) it = itBase*0.05;
+  else if(itBase<=3300000) it = itBase*0.10-97500;
+  else if(itBase<=6950000) it = itBase*0.20-427500;
+  else if(itBase<=9000000) it = itBase*0.23-636000;
+  else if(itBase<=18000000) it = itBase*0.33-1536000;
+  else it = itBase*0.40-2796000;
+  it = it*1.021;
+  const hikazei = 350000*(1+fuyo) + 100000 + (fuyo>0?210000:0);
+  let rt = 0;
+  if(ks > hikazei){
+    rt = Math.max(0, ks - 430000 - selfSI - (hasSp?330000:0))*0.10 + 5000;
+  }
+  return Math.round(it + rt);
 }
 
-function plRow(label, val) {
-  return `<tr><td>${label}</td><td>${fmt(val)}</td></tr>`;
+/* 合同会社の1年分 f:運用する月数の割合 tax:税理士 withPay:報酬・社保あり */
+function corpYear(o){
+  const {g, f, pay, siCo, rent, oth, tax, soft} = o;
+  const exp = (pay + siCo + rent + oth)*f;        // もともと払うお金
+  const cost = tax + soft*f;                       // 税理士・ソフト
+  const kinto = KINTO*f;
+  const profit = g*f - exp - cost;
+  const ct = corpTax(profit);
+  const indTax = g*f*T_IND;
+  const diff = indTax - ct;                        // 税金の差（均等割除く）
+  const sav = diff - cost*T_IND;                   // 節税の効果
+  const costReal = cost + kinto - cost*T_IND;      // 維持費（実質）
+  return {exp, cost, kinto, profit, ct, indTax, sav, costReal, adj: exp*T_IND - sav};
 }
-function plTotalRow(label, val) {
-  return `<tr><td><strong>${label}</strong></td><td><strong>${fmt(val)}</strong></td></tr>`;
-}
 
-function calculate() {
-  const inv = parseInt(document.getElementById('inv').value) || 0;
-  const rent = parseInt(document.getElementById('rent').value) || 0;
-  const travel = parseInt(document.getElementById('travel').value) || 0;
-  const rep = parseInt(document.getElementById('rep').value) || 0;
-  const taxAcc = parseInt(document.getElementById('tax_accountant').value) || 0;
-  const other = parseInt(document.getElementById('other').value) || 0;
-  const setup = parseInt(document.getElementById('setup').value) || 0;
-  const family = parseInt(document.getElementById('family').value) || 1;
-  const prevIncome = parseInt(document.getElementById('prev_income').value) || 0;
+const yen = v => (v<0?'−':'') + '¥' + Math.round(Math.abs(v)).toLocaleString('ja-JP');
+const neg = v => v===0 ? '¥0' : '−¥' + Math.round(Math.abs(v)).toLocaleString('ja-JP');
+const $ = id => document.getElementById(id);
+const IDS = ['age','inc','inc2','ui','uid','gain0','gain','sal','rent','oth','tax1','tax2','soft','est','zy','ty'];
+function setPct(el){ el.style.setProperty('--pct', ((el.value-el.min)/(el.max-el.min)*100)+'%'); }
 
-  const invAfterTax = Math.round(inv * (1 - 0.20315));
-  const travelAnnual = travel * 12;
+function update(){
+  IDS.forEach(id=>setPct($(id)));
+  const v = {}; IDS.forEach(id=>{ v[id] = +$(id).value; });
+  ['age','zy','ty','uid'].forEach(id=>$('v-'+id).textContent = v[id]);
+  ['inc','inc2','ui','gain0','gain','sal','rent','oth','tax1','tax2','soft','est'].forEach(id=>$('v-'+id).textContent = v[id].toLocaleString('ja-JP'));
 
-  // 1年目：国保は前年（退職前）収入ベース
-  const kokuhoY1 = kokuho(prevIncome, family);
-  const y1 = calcYear(invAfterTax, inv, rent, travelAnnual, taxAcc, other, setup, rep, kokuhoY1, family);
+  const age = v.age, Y = v.ty, N = v.zy;
+  /* 国保 */
+  let sh1 = kyuyoShotoku(v.inc); if(st.reason==='company') sh1 *= 0.3;
+  const k1 = calcKokuho(sh1, age, 0);
+  const k2 = calcKokuho(v.inc2, age, keigenRate(v.inc2, age));
+  /* 合同会社の社会保険 */
+  const annualPay = v.sal*12;
+  const si = calcCorpSI(v.sal, age);
+  const pt = payTax(annualPay, si.self);
+  /* 失業手当 */
+  const uiAmt = v.ui*v.uid;
+  const waitDays = 7 + (st.reason==='self'?30:0);
+  const m3 = Math.min(12, Math.round((waitDays + v.uid)/30.4));
+  const f3 = (12-m3)/12;
+  $('h-uid').textContent = `受け取り終わるまで約${m3}か月（待期7日${st.reason==='self'?'＋給付制限1か月':''}＋支給日数）。③はこのあと合同会社を作る前提で計算します。`;
 
-  // 2年目以降：国保は運用益ベース（法人化していない前提の税引前概算所得として運用益をそのまま使用）
-  const kokuhoY2 = kokuho(inv, family);
-  const y2 = calcYear(invAfterTax, inv, rent, travelAnnual, taxAcc, other, 0, rep, kokuhoY2, family);
+  const base = {g:v.gain, rent:v.rent, oth:v.oth, soft:v.soft};
+  /* ── ① 無職 ── */
+  const si1 = k1 + k2*(Y-1);
+  const tx1 = v.gain0*T_IND*N + v.gain*T_IND*Y;
+  const tot1 = si1 + tx1 - uiAmt;
 
-  const rentOfficeCalc = Math.round((rent / 3) * 12);
+  /* ── ② 在職中に作る ── */
+  let tx2z = 0, mt2z = v.est;
+  for(let i=0;i<N;i++){
+    const t = i===0?v.tax1:v.tax2;
+    const r = corpYear({...base, g:v.gain0, f:1, pay:0, siCo:0, tax:t});
+    tx2z += r.ct; mt2z += t + v.soft + KINTO;
+  }
+  const rPost = corpYear({...base, f:1, pay:annualPay, siCo:si.company, tax:v.tax2});
+  const si2 = si.total*Y;
+  const tx2a = (rPost.ct + pt)*Y;
+  const mt2a = (v.tax2 + v.soft + KINTO)*Y;
+  const tot2 = si2 + tx2z + tx2a + mt2z + mt2a;
 
-  // ---- 1年目：法人P&L 描画 ----
-  let y1plhtml = '';
-  y1plhtml += plRow('収入：有価証券運用益', y1.pl.income);
-  y1plhtml += plRow('費用：本人役員報酬', y1.pl.exp_rep);
-  y1plhtml += plRow('費用：事務所費用（家賃・水道光熱費按分）', y1.pl.exp_office);
-  y1plhtml += plRow('費用：旅費交通費', y1.pl.exp_travel);
-  y1plhtml += plRow('費用：税理士費用', y1.pl.exp_tax_acc);
-  y1plhtml += plRow('費用：その他販管費', y1.pl.exp_other);
-  y1plhtml += plRow('費用：設立費（初年度のみ）', y1.pl.exp_setup);
-  y1plhtml += plRow('費用：社会保険料（会社負担分）', y1.pl.exp_shakaihoken);
-  y1plhtml += plTotalRow('税引き前利益', y1.pl.pretax);
-  y1plhtml += plRow('法人税等（法人税＋均等割¥70,000）', -y1.pl.taxTotal);
-  y1plhtml += plTotalRow('当期利益（内部留保／赤字なら欠損）', y1.pl.netIncome);
-  document.getElementById('y1-pl-rows').innerHTML = y1plhtml;
+  /* ── ③ 失業手当の後に作る ── */
+  let si3 = k1*(m3/12) + si.total*f3;
+  let tx3 = v.gain0*T_IND*N, mt3 = 0;
+  if(f3>0){
+    const r1 = corpYear({...base, f:f3, pay:annualPay, siCo:si.company, tax:v.tax1});
+    tx3 += v.gain*(1-f3)*T_IND + r1.ct + payTax(annualPay*f3, si.self*f3);
+    mt3 += v.est + v.tax1 + v.soft*f3 + KINTO*f3;
+  } else {
+    tx3 += v.gain*T_IND;
+  }
+  for(let y=2;y<=Y;y++){
+    const t = (f3===0 && y===2) ? v.tax1 : v.tax2;
+    if(f3===0 && y===2) mt3 += v.est;
+    const r = corpYear({...base, f:1, pay:annualPay, siCo:si.company, tax:t});
+    si3 += si.total; tx3 += r.ct + pt; mt3 += t + v.soft + KINTO;
+  }
+  const tot3 = si3 + tx3 + mt3 - uiAmt;
 
-  // ---- 1年目：家族CF 描画 ----
-  let y1cfhtml = '';
-  y1cfhtml += row('運用益（無職は個人課税後 ／ MCは法人内で処理）', invAfterTax, 0);
-  y1cfhtml += row('法人当期利益（内部留保として家族資産に計上／赤字なら欠損）', 0, y1.pl.netIncome);
-  y1cfhtml += row('本人役員報酬 手取り（社保控除後）', 0, y1.repHandTake);
-  y1cfhtml += row('家賃・水道光熱費 個人負担', -(rent * 12), y1.rentIndiv);
-  y1cfhtml += row('国保＋国民年金（家族全員分）', -(kokuhoY1 + 203760 * 2), 0);
-  y1cfhtml += totalRow('年間CF合計', y1.none_total, y1.mc_total);
-  document.getElementById('y1-cf-rows').innerHTML = y1cfhtml;
+  /* ── 表示 ── */
+  $('t-res').textContent = `結果：在職中${N}年＋退職後${Y}年に払うお金の合計（少ないほど得）`;
+  $('r1').textContent = yen(tot1); $('r1s').textContent = `失業手当 ${yen(uiAmt)} を差し引き済み`;
+  $('r2').textContent = yen(tot2); $('r2s').textContent = '失業手当は受け取れない';
+  $('r3').textContent = yen(tot3); $('r3s').textContent = `退職後${m3}か月で合同会社を作る`;
+  const d2 = tot1-tot2, d3 = tot1-tot3;
+  const fmtD = d => (d>=0? yen(d)+' 少ない' : yen(-d)+' 多い');
+  $('rd').innerHTML = `② は ${fmtD(d2)}<br>③ は ${fmtD(d3)}`;
+  $('rds').textContent = `②と③の差：${yen(Math.abs(tot2-tot3))}（${tot2>tot3?'③':'②'}が少ない）`;
 
-  document.getElementById('y1-summary').innerHTML = `
-    <div class="summary-box"><div class="label">無職（国保）年間CF</div><div class="value" style="color:var(--red)">${y1.none_total<0?'▲':'＋'}¥${Math.abs(y1.none_total).toLocaleString()}</div></div>
-    <div class="summary-box highlight"><div class="label">MCあり 年間CF</div><div class="value">${y1.mc_total<0?'▲':'＋'}¥${Math.abs(y1.mc_total).toLocaleString()}</div></div>
-    <div class="summary-box" style="grid-column:1/-1;background:var(--gold-light);border-color:#D4A82A;">
-      <div class="label" style="color:var(--gold)">年間差額（MCありが有利な金額）</div>
-      <div class="value" style="color:var(--gold)">＋¥${(y1.mc_total - y1.none_total).toLocaleString()}</div>
-    </div>
-    <div class="summary-box" style="grid-column:1/-1;background:#F5F8F6;border-style:dashed;">
-      <div class="label">参考：無職の場合の国保（年額・家族${family}人分）</div>
-      <div class="value" style="font-size:14px;color:var(--text-sub)">¥${kokuhoY1.toLocaleString()}</div>
-    </div>
-  `;
+  const al = $('al'); const msgs = [];
+  if(Math.min(tot1,tot2,tot3)===tot1) msgs.push('この条件では、合同会社を作らない①が一番少なくなります。運用益が小さい場合や、維持費が大きい場合に起こります。');
+  if(rPost.profit<0) msgs.push('退職後の合同会社の経費が運用益を上回り、赤字になっています（赤字の繰越は考慮していません）。');
+  if(rPost.profit>4e6) msgs.push('合同会社に残る利益が大きく、税率が個人の約20%を上回る部分が増えています。');
+  if(msgs.length){ al.innerHTML = msgs.join('<br>'); al.classList.add('show'); } else al.classList.remove('show');
 
-  // ---- 2年目：法人P&L 描画 ----
-  let y2plhtml = '';
-  y2plhtml += plRow('収入：有価証券運用益', y2.pl.income);
-  y2plhtml += plRow('費用：本人役員報酬', y2.pl.exp_rep);
-  y2plhtml += plRow('費用：事務所費用（家賃・水道光熱費按分）', y2.pl.exp_office);
-  y2plhtml += plRow('費用：旅費交通費', y2.pl.exp_travel);
-  y2plhtml += plRow('費用：税理士費用', y2.pl.exp_tax_acc);
-  y2plhtml += plRow('費用：その他販管費', y2.pl.exp_other);
-  y2plhtml += plRow('費用：社会保険料（会社負担分）', y2.pl.exp_shakaihoken);
-  y2plhtml += plTotalRow('税引き前利益', y2.pl.pretax);
-  y2plhtml += plRow('法人税等（法人税＋均等割¥70,000）', -y2.pl.taxTotal);
-  y2plhtml += plTotalRow('当期利益（内部留保／赤字なら欠損）', y2.pl.netIncome);
-  document.getElementById('y2-pl-rows').innerHTML = y2plhtml;
+  $('l-si').textContent = `社会保険料（退職後${Y}年・家族全体）`;
+  $('c-t').textContent = `▲ 表1：在職中${N}年＋退職後${Y}年に払うお金の合計`;
+  $('t1-si').textContent = yen(si1); $('t2-si').textContent = yen(si2); $('t3-si').textContent = yen(si3);
+  $('t1-tx').textContent = yen(tx1); $('t2-tx').textContent = yen(tx2z+tx2a); $('t3-tx').textContent = yen(tx3);
+  $('t2-mt').textContent = yen(mt2z+mt2a); $('t3-mt').textContent = yen(mt3);
+  $('t1-ui').textContent = neg(uiAmt); $('t3-ui').textContent = neg(uiAmt);
+  $('t1-t').textContent = yen(tot1); $('t2-t').textContent = yen(tot2); $('t3-t').textContent = yen(tot3);
 
-  // ---- 2年目：家族CF 描画 ----
-  let y2cfhtml = '';
-  y2cfhtml += row('運用益（無職は個人課税後 ／ MCは法人内で処理）', invAfterTax, 0);
-  y2cfhtml += row('法人当期利益（内部留保として家族資産に計上／赤字なら欠損）', 0, y2.pl.netIncome);
-  y2cfhtml += row('本人役員報酬 手取り（社保控除後）', 0, y2.repHandTake);
-  y2cfhtml += row('家賃・水道光熱費 個人負担', -(rent * 12), y2.rentIndiv);
-  y2cfhtml += row('国保＋国民年金（家族全員分）', -(kokuhoY2 + 203760 * 2), 0);
-  y2cfhtml += totalRow('年間CF合計', y2.none_total, y2.mc_total);
-  document.getElementById('y2-cf-rows').innerHTML = y2cfhtml;
-
-  // ---- 累計 ----
-  const diffY1 = y1.mc_total - y1.none_total;
-  const diffY2 = y2.mc_total - y2.none_total;
-  const years = [
-    { label: '1年目', cum: diffY1 },
-    { label: '2年目', cum: diffY1 + diffY2 },
-    { label: '3年目', cum: diffY1 + diffY2 * 2 },
-    { label: '4年目', cum: diffY1 + diffY2 * 3 },
-    { label: '5年目', cum: diffY1 + diffY2 * 4 },
-  ];
-  const maxAbs = Math.max(...years.map(y => Math.abs(y.cum)));
-  let barHTML = '';
-  years.forEach(y => {
-    const pct = maxAbs > 0 ? Math.min(Math.abs(y.cum) / maxAbs * 100, 100) : 0;
-    const isNeg = y.cum < 0;
-    const sign = y.cum >= 0 ? '＋' : '▲';
-    const color = isNeg ? 'color:var(--red)' : 'color:var(--green-dark)';
-    barHTML += `<div style="margin-bottom:12px">
-      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-sub);margin-bottom:4px;">
-        <span>${y.label}</span><span style="${color};font-weight:700">${sign}¥${Math.abs(y.cum).toLocaleString()}</span>
-      </div>
-      <div style="background:#E8F0EB;border-radius:4px;height:10px;overflow:hidden;">
-        <div style="height:100%;border-radius:4px;background:${isNeg ? '#E67E73' : 'var(--green-mid)'};width:${pct}%"></div>
-      </div>
-    </div>`;
+  const P = [corpYear({...base, f:1, pay:annualPay, siCo:si.company, tax:v.tax1}), rPost];
+  const tx = [v.tax1, v.tax2];
+  P.forEach((r,i)=>{
+    const k = i+1;
+    $('p-g'+k).textContent = yen(v.gain);
+    $('p-s'+k).textContent = neg(annualPay);
+    $('p-h'+k).textContent = neg(si.company);
+    $('p-r'+k).textContent = neg(v.rent + v.oth);
+    $('p-t'+k).textContent = neg(tx[i] + v.soft);
+    $('p-p'+k).textContent = yen(r.profit);
+    $('p-c'+k).textContent = yen(r.ct);
+    $('p-i'+k).textContent = yen(r.indTax);
   });
-  document.getElementById('cumulative-bars').innerHTML = barHTML;
-
-  document.getElementById('results').classList.add('visible');
-  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-function switchTab(id, btn) {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.phase-panel').forEach(p => p.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('panel-' + id).classList.add('active');
+function bindToggle(groupId, key, cast, after){
+  document.querySelectorAll('#'+groupId+' .tb').forEach(b=>{
+    b.addEventListener('click',()=>{
+      document.querySelectorAll('#'+groupId+' .tb').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active'); st[key] = cast(b.dataset.v); if(after) after(); update();
+    });
+  });
 }
+bindToggle('sp','spouse',v=>v);
+bindToggle('kids','kids',v=>+v);
+bindToggle('reason','reason',v=>v,()=>{ $('uid').value = st.reason==='self'?150:330; });
+IDS.forEach(id=>$(id).addEventListener('input',update));
+update();
 </script>
 </body>
 </html>
