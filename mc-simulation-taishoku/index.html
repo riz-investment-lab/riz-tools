@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>退職前に作る合同会社 収支シミュレーター｜Riz</title>
-<meta name="description" content="退職後に無職で過ごす場合と、在職中に自分の合同会社を作る場合に払うお金の合計を、社会保険料・税金・会社を作ったから増えるコストまで含めて比べるシミュレーターです。">
+<title>合同会社のメリット比較シミュレーター｜Riz</title>
+<meta name="description" content="在職中・退職1年目・退職2年目以降の3つの時期について、自分の合同会社を持つと1年あたりいくら得になるかを、税金と社会保険料に分けて比べるシミュレーターです。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#F5F3EE;--card:#FFFFFF;--ink:#2C2C2A;--ink2:#5F5E5A;--muted:#888780;--line:#E6E3DA;
   --green:#1A4A2A;--green2:#1D9E75;--mint:#9FE1CB;--mint-bg:#EAF6F0;
-  --red:#A33B2B;--red-bg:#FBEDEA;--amber-bg:#FFF6E0;--amber:#8A5A00;
+  --red:#A33B2B;--amber-bg:#FFF6E0;--amber:#8A5A00;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Noto Sans JP',sans-serif;font-size:15px;line-height:1.7;color:var(--ink);background:var(--bg);min-height:100vh}
@@ -23,13 +23,10 @@ body{font-family:'Noto Sans JP',sans-serif;font-size:15px;line-height:1.7;color:
 .section{margin-bottom:1.5rem}
 .section-title{font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--muted);margin-bottom:.6rem;padding-left:2px}
 .card{background:var(--card);border-radius:14px;padding:1.25rem;box-shadow:0 1px 4px rgba(0,0,0,.06)}
-.ig{margin-bottom:1.25rem}.ig:last-child{margin-bottom:0}
+.ig{margin-bottom:1.2rem}.ig:last-child{margin-bottom:0}
 .sub-h{font-size:13px;font-weight:700;color:var(--green);margin:1.25rem 0 .35rem;padding-top:1rem;border-top:1px solid var(--line)}
 .sub-h:first-child{margin-top:0;padding-top:0;border-top:none}
 .sub-d{font-size:12px;color:var(--muted);margin-bottom:.85rem;line-height:1.6}
-.tag{display:inline-block;font-size:10.5px;font-weight:700;padding:1px 8px;border-radius:100px;margin-left:6px;vertical-align:2px}
-.tag.save{background:var(--mint-bg);color:var(--green)}
-.tag.cost{background:var(--amber-bg);color:var(--amber)}
 .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:.45rem}
 .lbl{font-size:13px;color:#444441;font-weight:500}
 .val{font-size:16px;font-weight:700;color:var(--green);text-align:right;white-space:nowrap}
@@ -41,36 +38,41 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
 .tb{padding:6px 16px;border:1.5px solid #D3D1C7;border-radius:100px;background:#fff;color:var(--ink2);font-size:13px;font-family:inherit;cursor:pointer}
 .tb.active{background:var(--green);border-color:var(--green);color:#fff;font-weight:500}
 .hint{font-size:12px;color:#9C9A92;margin-top:.45rem;line-height:1.6}
-.cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
-.rc{border-radius:14px;padding:.9rem .6rem;text-align:center}
-.rc.k{background:var(--red-bg)}.rc.m{background:var(--mint-bg)}
-.rc .t{font-size:12px;font-weight:700;color:var(--ink2);margin-bottom:.25rem;line-height:1.4}
-.rc .a{font-size:1.2rem;font-weight:700;line-height:1.3}
-.rc.k .a{color:var(--red)}.rc.m .a{color:var(--green)}
-.diff{background:var(--green);color:#fff;border-radius:14px;padding:1rem;text-align:center;margin-bottom:10px}
-.diff .t{font-size:12px;color:var(--mint)}
-.diff .a{font-size:1.15rem;font-weight:700;line-height:1.7}
-.alert{display:none;background:var(--amber-bg);color:var(--amber);font-size:12px;border-radius:10px;padding:.6rem .8rem;margin-bottom:10px;line-height:1.6}
+
+.intro{font-size:12.5px;color:var(--ink2);background:#fff;border-radius:10px;padding:.7rem .9rem;line-height:1.75}
+.intro b{color:var(--green)}
+
+.cases{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.case{background:#fff;border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,.06);padding:.9rem .75rem;display:flex;flex-direction:column}
+.case .nm{font-size:13px;font-weight:700;color:var(--green);line-height:1.4}
+.case .ins{font-size:11px;color:var(--muted);margin-bottom:.6rem;line-height:1.5}
+.case .ln{display:flex;justify-content:space-between;align-items:baseline;gap:6px;padding:.35rem 0;border-bottom:1px dashed var(--line);font-size:12px}
+.case .ln b{font-size:13.5px;white-space:nowrap}
+.case .tot{margin-top:auto;padding-top:.6rem;border-top:2px solid var(--green);border-bottom:none}
+.case .tot span{font-weight:700;color:var(--green)}
+.case .tot b{font-size:17px}
+.p{color:var(--green)}.n{color:var(--red)}.z{color:var(--muted)}
+
+.sum{background:var(--green);color:#fff;border-radius:14px;padding:1rem;text-align:center;margin-top:10px}
+.sum .t{font-size:12px;color:var(--mint)}
+.sum .a{font-size:1.35rem;font-weight:700;line-height:1.6}
+.sum .s{font-size:11px;color:var(--mint);line-height:1.6}
+.alert{display:none;background:var(--amber-bg);color:var(--amber);font-size:12px;border-radius:10px;padding:.6rem .8rem;margin-top:10px;line-height:1.6}
 .alert.show{display:block}
-.eff{background:#fff;border-radius:14px;padding:.4rem 1.1rem .6rem;box-shadow:0 1px 4px rgba(0,0,0,.06)}
-.eff-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:.65rem 0;border-bottom:1px solid var(--line)}
-.eff-row span{font-size:13.5px}
-.eff-row span small{display:block;font-size:11px;color:var(--muted);line-height:1.5}
-.eff-row b{font-size:15px;white-space:nowrap}
-.eff-row b.p{color:var(--green)}.eff-row b.n{color:var(--red)}
-.eff-row.total{border-bottom:none;border-top:2px solid var(--green);margin-top:2px}
-.eff-row.total span{font-weight:700;color:var(--green)}
-.eff-row.total b{font-size:18px}
-.tbl-wrap{background:#fff;border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,.06);overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:13px;min-width:440px}
-th,td{padding:.55rem .7rem;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
-th:first-child,td:first-child{text-align:left;white-space:normal;min-width:11em;position:sticky;left:0;background:#fff}
-thead th:first-child{background:#F0EEE7}
-thead th{background:#F0EEE7;font-size:12px;color:var(--ink2);font-weight:700}
+
+details.more{background:#fff;border-radius:14px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+details.more summary{cursor:pointer;padding:.85rem 1.1rem;font-size:13px;font-weight:700;color:var(--green);list-style:none}
+details.more summary::-webkit-details-marker{display:none}
+details.more summary::after{content:"＋";float:right;color:var(--muted)}
+details.more[open] summary::after{content:"−"}
+.tbl-wrap{overflow-x:auto;padding:0 .4rem .6rem}
+table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:460px}
+th,td{padding:.5rem .55rem;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th:first-child,td:first-child{text-align:left;white-space:normal;min-width:10.5em;position:sticky;left:0;background:#fff}
+thead th{font-size:11.5px;color:var(--ink2);font-weight:700;background:#F0EEE7}
 tr.ttl td{font-weight:700;background:#FAF9F5}
-tr.sub td{font-size:12px;color:var(--muted)}
-.caption{font-size:12px;color:var(--muted);margin-top:.4rem;padding-left:2px}
-.formula{font-size:12px;color:var(--ink2);background:#fff;border-radius:10px;padding:.6rem .8rem;margin-bottom:.6rem;line-height:1.7}
+tr.grp td{font-size:11px;font-weight:700;color:var(--green);background:#F7F6F1}
+
 .notes{background:#fff;border-radius:14px;padding:1rem 1.25rem;box-shadow:0 1px 4px rgba(0,0,0,.06)}
 .notes li{font-size:12px;color:var(--ink2);margin-left:1.1rem;margin-bottom:.4rem;line-height:1.7}
 .links{text-align:center;margin-top:1.5rem}
@@ -78,46 +80,43 @@ tr.sub td{font-size:12px;color:var(--muted)}
 .btn{display:inline-block;padding:.6rem 1.4rem;border-radius:100px;background:var(--green);color:#fff;text-decoration:none;font-size:14px;font-weight:500;margin:.2rem}
 .btn.o{background:#fff;color:var(--green);border:1.5px solid var(--green)}
 .foot{text-align:center;font-size:11px;color:#9C9A92;margin-top:1.5rem;line-height:1.7}
-@media (max-width:520px){.rc .a{font-size:1.05rem}}
+@media (max-width:560px){.cases{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 
 <div class="header">
   <span class="badge">RIZ</span>
-  <h1>退職前に作る合同会社 収支シミュレーター<br>無職で過ごす vs 在職中に自分の合同会社を作る</h1>
-  <p>社会保険料・税金・会社を作ったから増えるコストまで含めた概算（名古屋市・協会けんぽ愛知支部 令和8年度料率）</p>
+  <h1>合同会社のメリット比較シミュレーター<br>在職中・退職1年目・退職2年目以降</h1>
+  <p>税金と社会保険料に分けた、1年あたりの概算（名古屋市・協会けんぽ愛知支部 令和8年度料率）</p>
 </div>
 
 <div class="container">
 
   <div class="section">
-    <p class="section-title">比べる2つの道</p>
-    <div class="formula">
-      <b>①</b> 合同会社を作らず、退職後は無職で過ごす（国保＋国民年金。運用益は個人の特定口座で受け取る）<br>
-      <b>②</b> 勤務先にいるうちに合同会社を作り、退職と同時に合同会社の社会保険に移る（運用益は合同会社で受け取る）
-    </div>
+    <p class="intro">
+      運用益を<b>個人の特定口座</b>で受け取り、退職後は無職で過ごす場合と比べて、<b>自分の合同会社</b>を持つと1年あたりいくら得になるかを、3つの時期に分けて表示します。
+    </p>
   </div>
 
   <div class="section">
     <p class="section-title">入力</p>
     <div class="card">
 
-      <p class="sub-h" style="margin-bottom:.85rem">家族と勤務先の条件</p>
+      <p class="sub-h" style="margin-bottom:.85rem">家族と勤務先</p>
       <div class="ig">
         <div class="row"><span class="lbl">本人の年齢（退職時）</span><span class="val"><span id="v-age">55</span>歳</span></div>
         <input type="range" id="age" min="30" max="64" value="55" step="1">
         <div class="rl"><span>30歳</span><span>64歳</span></div>
       </div>
       <div class="ig">
-        <div class="row" style="margin-bottom:.6rem"><span class="lbl">配偶者</span></div>
+        <div class="row" style="margin-bottom:.6rem"><span class="lbl">配偶者（扶養に入る前提）</span></div>
         <div class="tg" id="sp">
           <button class="tb" data-v="none">なし</button>
           <button class="tb" data-v="under40">40歳未満</button>
           <button class="tb active" data-v="40to59">40〜59歳</button>
           <button class="tb" data-v="60plus">60〜64歳</button>
         </div>
-        <p class="hint">配偶者に収入がなく、扶養に入る前提です。</p>
       </div>
       <div class="ig">
         <div class="row" style="margin-bottom:.6rem"><span class="lbl">子どもの人数（18歳未満）</span></div>
@@ -130,126 +129,122 @@ tr.sub td{font-size:12px;color:var(--muted)}
         </div>
       </div>
       <div class="ig">
-        <div class="row"><span class="lbl">勤務先での退職前の年収（給与）</span><span class="val">¥<span id="v-inc">8,000,000</span></span></div>
+        <div class="row"><span class="lbl">退職前の年収（給与）</span><span class="val">¥<span id="v-inc">8,000,000</span></span></div>
         <input type="range" id="inc" min="3000000" max="20000000" value="8000000" step="100000">
         <div class="rl"><span>300万円</span><span>2,000万円</span></div>
-        <p class="hint">①の、退職1年目の国保はこの年収をもとに計算されます。</p>
+        <p class="hint">退職1年目の国保は、この年収をもとに計算されます。</p>
       </div>
 
-      <p class="sub-h">運用益と、もともと払うお金<span class="tag save">合同会社なら税金の前に払える</span></p>
-      <p class="sub-d">会社がなくても生活のために払うお金です。合同会社では、運用益からこれらを先に払い、残った利益にだけ税金がかかります。</p>
+      <p class="sub-h">運用益</p>
       <div class="ig">
-        <div class="row"><span class="lbl">運用益（在職中・1年あたり）</span><span class="val">¥<span id="v-gain0">1,000,000</span></span></div>
+        <div class="row"><span class="lbl">在職中（1年あたり）</span><span class="val">¥<span id="v-gain0">1,000,000</span></span></div>
         <input type="range" id="gain0" min="0" max="10000000" value="1000000" step="100000">
         <div class="rl"><span>0円</span><span>1,000万円</span></div>
-        <p class="hint">在職中は、合同会社からの報酬と社会保険料を0円として計算します（社会保険は勤務先のまま）。</p>
       </div>
       <div class="ig">
-        <div class="row"><span class="lbl">運用益（退職後・1年あたり）</span><span class="val">¥<span id="v-gain">2,000,000</span></span></div>
+        <div class="row"><span class="lbl">退職後（1年あたり）</span><span class="val">¥<span id="v-gain">2,000,000</span></span></div>
         <input type="range" id="gain" min="0" max="10000000" value="2000000" step="100000">
         <div class="rl"><span>0円</span><span>1,000万円</span></div>
-        <p class="hint">①では、同じ運用益を個人の特定口座で受け取り、20.315%の税金がかかる前提で比べます。</p>
       </div>
+
+      <p class="sub-h">もともと払うお金</p>
+      <p class="sub-d">会社がなくても払うお金です。合同会社では、運用益からこれを先に払い、残った利益にだけ税金がかかります。</p>
       <div class="ig">
         <div class="row"><span class="lbl">自分への報酬（月額・退職後）</span><span class="val">¥<span id="v-sal">60,000</span></span></div>
         <input type="range" id="sal" min="30000" max="300000" value="60000" step="5000">
         <div class="rl"><span>3万円</span><span>30万円</span></div>
+        <p class="hint">在職中は報酬を受け取らず、社会保険は勤務先のままとします。</p>
       </div>
       <div class="ig">
         <div class="row"><span class="lbl">家賃・光熱費など（1年あたり）</span><span class="val">¥<span id="v-rent">600,000</span></span></div>
         <input type="range" id="rent" min="0" max="1500000" value="600000" step="10000">
         <div class="rl"><span>0円</span><span>150万円</span></div>
-        <p class="hint">自宅の一部を事務所として使う分の家賃・光熱費・通信費などです。経費にできるのは、業務に使う分だけです。</p>
+        <p class="hint">自宅の一部を事務所として使う分です。経費にできるのは、業務に使う分だけです。</p>
       </div>
 
-      <p class="sub-h">会社を作ったから増えるコスト<span class="tag cost">個人なら不要</span></p>
-      <p class="sub-d">合同会社を持たなければかからない費用です。住民税の均等割（年¥70,000）は、利益に関係なく自動でかかります。</p>
+      <p class="sub-h">会社を作ったから増えるコスト</p>
+      <p class="sub-d">合同会社を持たなければかからない費用です。住民税の均等割（年¥70,000）は自動でかかります。</p>
+      <div class="ig">
+        <div class="row"><span class="lbl">税理士・会計ソフトなど（1年あたり）</span><span class="val">¥<span id="v-cost">130,000</span></span></div>
+        <input type="range" id="cost" min="0" max="600000" value="130000" step="10000">
+        <div class="rl"><span>0円</span><span>60万円</span></div>
+        <p class="hint">決算だけ税理士に頼み、帳簿は会計ソフトで自分でつける場合の目安です。</p>
+      </div>
       <div class="ig">
         <div class="row"><span class="lbl">設立費用（1回だけ）</span><span class="val">¥<span id="v-est">100,000</span></span></div>
         <input type="range" id="est" min="0" max="300000" value="100000" step="10000">
         <div class="rl"><span>0円</span><span>30万円</span></div>
       </div>
-      <div class="ig">
-        <div class="row"><span class="lbl">税理士・会計ソフトなど（1年あたり）</span><span class="val">¥<span id="v-cost">130,000</span></span></div>
-        <input type="range" id="cost" min="0" max="600000" value="130000" step="10000">
-        <div class="rl"><span>0円</span><span>60万円</span></div>
-        <p class="hint">決算だけ税理士に頼み、会計ソフトで自分で帳簿をつける場合の目安です。顧問契約にする場合は、年50万円以上になることもあります。</p>
-      </div>
-
-      <p class="sub-h">期間</p>
-      <div class="ig">
-        <div class="row"><span class="lbl">在職中に合同会社を持つ年数</span><span class="val"><span id="v-zy">1</span>年</span></div>
-        <input type="range" id="zy" min="1" max="5" value="1" step="1">
-        <div class="rl"><span>1年</span><span>5年</span></div>
-      </div>
-      <div class="ig">
-        <div class="row"><span class="lbl">比べる退職後の年数</span><span class="val"><span id="v-ty">5</span>年</span></div>
-        <input type="range" id="ty" min="1" max="10" value="5" step="1">
-        <div class="rl"><span>1年</span><span>10年</span></div>
-      </div>
     </div>
   </div>
 
   <div class="section">
-    <p class="section-title" id="t-res">結果：払うお金の合計（少ないほど得）</p>
-    <div class="cards">
-      <div class="rc k"><div class="t">① 無職で過ごす</div><div class="a" id="r1">—</div></div>
-      <div class="rc m"><div class="t">② 在職中に作る</div><div class="a" id="r2">—</div></div>
+    <p class="section-title">結果：合同会社を持つと、1年あたりいくら得になるか</p>
+    <div class="cases">
+      <div class="case">
+        <div class="nm">在職中</div><div class="ins">社会保険は勤務先のまま</div>
+        <div class="ln"><span>税金</span><b id="a-tx">—</b></div>
+        <div class="ln"><span>社会保険料</span><b id="a-si">—</b></div>
+        <div class="ln tot"><span>1年あたり</span><b id="a-t">—</b></div>
+      </div>
+      <div class="case">
+        <div class="nm">退職1年目</div><div class="ins">合同会社の社会保険 vs 国保（前年の給与で計算）</div>
+        <div class="ln"><span>税金</span><b id="b-tx">—</b></div>
+        <div class="ln"><span>社会保険料</span><b id="b-si">—</b></div>
+        <div class="ln tot"><span>1年あたり</span><b id="b-t">—</b></div>
+      </div>
+      <div class="case">
+        <div class="nm">退職2年目以降</div><div class="ins">合同会社の社会保険 vs 国保（前年の所得なし）</div>
+        <div class="ln"><span>税金</span><b id="c-tx">—</b></div>
+        <div class="ln"><span>社会保険料</span><b id="c-si">—</b></div>
+        <div class="ln tot"><span>1年あたり</span><b id="c-t">—</b></div>
+      </div>
+    </div>
+    <p class="hint">「税金」は、個人で受け取った場合の税金から、合同会社の税金と会社を作ったから増えるコストを差し引いた金額です。</p>
+
+    <div class="sum">
+      <div class="t" id="s-t">在職中1年＋退職後5年の合計（設立費用を差し引き後）</div>
+      <div class="a" id="s-a">—</div>
+      <div class="s" id="s-s">—</div>
+    </div>
+    <div class="ig" style="margin-top:12px">
+      <div class="row"><span class="lbl">合計に含める退職後の年数</span><span class="val"><span id="v-ty">5</span>年</span></div>
+      <input type="range" id="ty" min="1" max="10" value="5" step="1">
+      <div class="rl"><span>1年</span><span>10年</span></div>
     </div>
     <div class="alert" id="al"></div>
-    <div class="diff"><div class="t">②は①より</div><div class="a" id="rd">—</div></div>
   </div>
 
   <div class="section">
-    <p class="section-title">差の内訳：なぜ②の方が少なくなるのか</p>
-    <div class="eff">
-      <div class="eff-row"><span>税金が安くなる分<small>①の税金 − ②の税金（運用益・報酬にかかる税金）</small></span><b id="e-tx">—</b></div>
-      <div class="eff-row"><span>社会保険料が安くなる分<small>退職後の国保＋国民年金 − 合同会社の社会保険料</small></span><b id="e-si">—</b></div>
-      <div class="eff-row"><span>会社を作ったから増えるコスト<small>設立費・税理士・会計ソフト・均等割</small></span><b id="e-mt">—</b></div>
-      <div class="eff-row total"><span>差し引き（②が少ない金額）</span><b id="e-t">—</b></div>
-    </div>
-  </div>
-
-  <div class="section">
-    <p class="section-title">払うお金の内訳</p>
-    <div class="tbl-wrap"><table>
-      <thead><tr><th>項目</th><th>① 無職で過ごす</th><th>② 在職中に作る</th></tr></thead>
-      <tbody>
-        <tr><td id="l-si">社会保険料（退職後・家族全体）</td><td id="t1-si">—</td><td id="t2-si">—</td></tr>
-        <tr><td>運用益などにかかる税金</td><td id="t1-tx">—</td><td id="t2-tx">—</td></tr>
-        <tr><td>会社を作ったから増えるコスト</td><td>¥0</td><td id="t2-mt">—</td></tr>
-        <tr class="ttl"><td>払うお金の合計（少ないほど得）</td><td id="t1-t">—</td><td id="t2-t">—</td></tr>
-      </tbody>
-    </table></div>
-    <p class="caption" id="c-t">▲ 表1：払うお金の合計</p>
-    <p class="hint">自分への報酬や家賃・光熱費は、合同会社がなくても生活費として払うお金なので含めていません。</p>
-  </div>
-
-  <div class="section">
-    <p class="section-title">参考：1年分で見た、個人と合同会社の税金の違い</p>
-    <div class="tbl-wrap"><table>
-      <thead><tr><th>項目</th><th>在職中の1年</th><th>退職後の1年</th></tr></thead>
-      <tbody>
-        <tr><td>運用益</td><td id="p-g1">—</td><td id="p-g2">—</td></tr>
-        <tr><td>もともと払うお金（報酬・社会保険料・家賃など）</td><td id="p-o1">—</td><td id="p-o2">—</td></tr>
-        <tr><td>会社を作ったから増えるコスト（税理士・会計ソフトなど）</td><td id="p-x1">—</td><td id="p-x2">—</td></tr>
-        <tr class="ttl"><td>税金がかかる利益</td><td id="p-p1">—</td><td id="p-p2">—</td></tr>
-        <tr><td>合同会社の税金（均等割を含む）と、報酬にかかる税金</td><td id="p-c1">—</td><td id="p-c2">—</td></tr>
-        <tr class="sub"><td>参考：同じ運用益を個人で受け取った場合の税金</td><td id="p-i1">—</td><td id="p-i2">—</td></tr>
-      </tbody>
-    </table></div>
-    <p class="caption">▲ 表2：税金が安くなる理由（もともと払うお金を先に払い、残った利益にだけ税金がかかる）</p>
+    <details class="more">
+      <summary>計算の中身を見る</summary>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>1年あたり</th><th>在職中</th><th>退職1年目</th><th>退職2年目以降</th></tr></thead>
+        <tbody>
+          <tr class="grp"><td colspan="4">税金</td></tr>
+          <tr><td>運用益</td><td id="d-g1"></td><td id="d-g2"></td><td id="d-g3"></td></tr>
+          <tr><td>もともと払うお金（報酬・会社負担の社会保険料・家賃など）</td><td id="d-o1"></td><td id="d-o2"></td><td id="d-o3"></td></tr>
+          <tr><td>会社を作ったから増えるコスト</td><td id="d-x1"></td><td id="d-x2"></td><td id="d-x3"></td></tr>
+          <tr><td>税金がかかる利益</td><td id="d-p1"></td><td id="d-p2"></td><td id="d-p3"></td></tr>
+          <tr><td>個人で受け取った場合の税金（20.315%）</td><td id="d-i1"></td><td id="d-i2"></td><td id="d-i3"></td></tr>
+          <tr><td>合同会社の税金（均等割を含む）＋報酬にかかる税金</td><td id="d-c1"></td><td id="d-c2"></td><td id="d-c3"></td></tr>
+          <tr class="ttl"><td>税金の得（個人 − 合同会社 − 増えるコスト）</td><td id="d-t1"></td><td id="d-t2"></td><td id="d-t3"></td></tr>
+          <tr class="grp"><td colspan="4">社会保険料（家族全体）</td></tr>
+          <tr><td>無職の場合（国保＋国民年金）</td><td id="d-k1"></td><td id="d-k2"></td><td id="d-k3"></td></tr>
+          <tr><td>合同会社の社会保険（会社負担＋本人負担）</td><td id="d-h1"></td><td id="d-h2"></td><td id="d-h3"></td></tr>
+          <tr class="ttl"><td>社会保険料の得</td><td id="d-s1"></td><td id="d-s2"></td><td id="d-s3"></td></tr>
+        </tbody>
+      </table></div>
+    </details>
   </div>
 
   <div class="section">
     <p class="section-title">ご注意</p>
     <div class="notes"><ul>
-      <li>社会保険料は、連載第3回のシミュレーターと同じ計算です（名古屋市国保・協会けんぽ愛知支部の令和8年度料率）。①は自己都合で退職し、退職2年目以降は確定申告する所得がない前提です。年齢・家族構成は期間中変わらない前提です。</li>
-      <li>法人税などは、法人税（800万円以下15%）・地方法人税・法人住民税の法人税割7%・事業税・特別法人事業税で計算しています（中小法人の軽減税率を前提）。赤字の繰越は考慮していません。</li>
-      <li>①の税金は、運用益を個人の特定口座で受け取る前提（20.315%）です。</li>
+      <li>社会保険料は、連載第3回のシミュレーターと同じ計算です（名古屋市国保・協会けんぽ愛知支部の令和8年度料率）。退職2年目以降の国保は、前年の所得がない（7割軽減）前提です。</li>
+      <li>法人税などは、中小法人の軽減税率を前提にした概算です。赤字の繰越は考慮していません。</li>
       <li>失業手当は含めていません。在職中に合同会社を作り、退職後も役員を続ける場合、失業手当は受け取れないと考えておく方が安全です（最終的にはハローワークの判断です）。</li>
-      <li>報酬にかかる所得税・住民税は、基礎控除・社会保険料控除・配偶者控除のみで概算しています。</li>
-      <li>家賃などを合同会社の経費にできるのは、業務に使っている分だけです。本ツールは概算であり、税務・社会保険の助言ではありません。実際の判断は、税理士・社会保険労務士・ハローワークにご確認ください。</li>
+      <li>家賃などを合同会社の経費にできるのは、業務に使っている分だけです。本ツールは概算であり、税務・社会保険の助言ではありません。実際の判断は、税理士・社会保険労務士にご確認ください。</li>
     </ul></div>
   </div>
 
@@ -274,14 +269,12 @@ const KH = {
   kodomo:{s:0.0026, k:1771, kAdult:92, lim:30000}
 };
 const KISO = 430000;
-const KEIGEN_BASE = 430000;
 /* ── 協会けんぽ愛知支部 令和8年度 ── */
 const KP = {ken:0.0993, kai:0.0162, ko:0.0023, nen:0.183, kyoshutsu:0.0036};
 const NENKIN_MONTH = 17920;
 const GRADES = [[63000,58000],[73000,68000],[83000,78000],[93000,88000],[101000,98000],[107000,104000],[114000,110000],[122000,118000],[130000,126000],[138000,134000],[146000,142000],[155000,150000],[165000,160000],[175000,170000],[185000,180000],[195000,190000],[210000,200000],[230000,220000],[250000,240000],[270000,260000],[290000,280000],[310000,300000],[330000,320000]];
-/* ── 税 ── */
-const T_IND = 0.20315;      // 特定口座の税率
-const KINTO = 70000;        // 法人住民税の均等割
+const T_IND = 0.20315;   // 特定口座の税率
+const KINTO = 70000;     // 法人住民税の均等割
 
 const st = {spouse:'40to59', kids:2};
 
@@ -303,16 +296,15 @@ function members(age){
   if(sp==='under40'||sp==='40to59') nenkin += 1;
   return {adults, all, kaigo, nenkin};
 }
-function calcKokuho(shotoku, age, keigenRate){
+function calcKokuho(shotoku, age, keigen){
   const m = members(age);
   const base = Math.max(0, shotoku - KISO);
-  const r = 1 - keigenRate;
+  const r = 1 - keigen;
   const iryo  = Math.min(base*KH.iryo.s  + KH.iryo.k*m.all*r, KH.iryo.lim);
   const shien = Math.min(base*KH.shien.s + KH.shien.k*m.all*r, KH.shien.lim);
   const kaigo = m.kaigo>0 ? Math.min(base*KH.kaigo.s + KH.kaigo.k*m.kaigo*r, KH.kaigo.lim) : 0;
   const ko    = Math.min(base*KH.kodomo.s + (KH.kodomo.k+KH.kodomo.kAdult)*m.adults*r, KH.kodomo.lim);
-  const kokuho = Math.round(iryo)+Math.round(shien)+Math.round(kaigo)+Math.round(ko);
-  return kokuho + NENKIN_MONTH*12*m.nenkin;
+  return Math.round(iryo)+Math.round(shien)+Math.round(kaigo)+Math.round(ko) + NENKIN_MONTH*12*m.nenkin;
 }
 function calcCorpSI(pay, age){
   const h = hyojun(pay), n = Math.max(88000, h);
@@ -325,14 +317,12 @@ function calcCorpSI(pay, age){
   const self = Math.round(shared/2);
   return {total: shared+kyo, self, company: shared-self+kyo};
 }
-/* 法人税など（所得に応じた分）：中小法人 */
 function corpTax(p){
   if(p<=0) return 0;
   const hojin = 0.15*Math.min(p,8e6) + 0.232*Math.max(0,p-8e6);
   const jigyo = 0.035*Math.min(p,4e6) + 0.053*Math.min(Math.max(0,p-4e6),4e6) + 0.07*Math.max(0,p-8e6);
   return hojin*(1+0.103+0.07) + jigyo*1.37;
 }
-/* 報酬にかかる所得税・住民税（概算） */
 function payTax(annualPay, selfSI){
   if(annualPay<=0) return 0;
   const ks = kyuyoShotoku(annualPay);
@@ -349,94 +339,79 @@ function payTax(annualPay, selfSI){
   it = it*1.021;
   const hikazei = 350000*(1+fuyo) + 100000 + (fuyo>0?210000:0);
   let rt = 0;
-  if(ks > hikazei){
-    rt = Math.max(0, ks - 430000 - selfSI - (hasSp?330000:0))*0.10 + 5000;
-  }
+  if(ks > hikazei) rt = Math.max(0, ks - 430000 - selfSI - (hasSp?330000:0))*0.10 + 5000;
   return Math.round(it + rt);
 }
 
-/* 合同会社の1年分 */
-function corpYear(g, own, cost){
-  const profit = g - own - cost;
-  return {profit, ct: corpTax(profit), indTax: g*T_IND};
-}
-
-const yen = v => (v<0?'−':'') + '¥' + Math.round(Math.abs(v)).toLocaleString('ja-JP');
-const neg = v => v===0 ? '¥0' : '−¥' + Math.round(Math.abs(v)).toLocaleString('ja-JP');
-const sgn = v => (v>=0?'+':'−') + '¥' + Math.round(Math.abs(v)).toLocaleString('ja-JP');
 const $ = id => document.getElementById(id);
-const IDS = ['age','inc','gain0','gain','sal','rent','est','cost','zy','ty'];
+const yen = v => (v<0?'−':'') + '¥' + Math.round(Math.abs(v)).toLocaleString('ja-JP');
+const sgn = v => Math.round(v)===0 ? '¥0' : (v>0?'+':'−') + '¥' + Math.round(Math.abs(v)).toLocaleString('ja-JP');
+const cls = v => Math.round(v)===0 ? 'z' : (v>0?'p':'n');
+const IDS = ['age','inc','gain0','gain','sal','rent','cost','est','ty'];
 function setPct(el){ el.style.setProperty('--pct', ((el.value-el.min)/(el.max-el.min)*100)+'%'); }
 
-function compute(v){
-  const age = v.age, Y = v.ty, N = v.zy;
-  /* ① の国保・国民年金（1年目は退職前の給与、2年目以降は所得なし＝7割軽減） */
-  const k1 = calcKokuho(kyuyoShotoku(v.inc), age, 0);
-  const k2 = calcKokuho(0, age, 0.7);
-  /* ② の社会保険と報酬 */
-  const annualPay = v.sal*12;
-  const si = calcCorpSI(v.sal, age);
-  const pt = payTax(annualPay, si.self);
-
-  /* ── ① 無職で過ごす ── */
-  const si1 = k1 + k2*(Y-1);
-  const tx1 = v.gain0*T_IND*N + v.gain*T_IND*Y;
-  const tot1 = si1 + tx1;
-
-  /* ── ② 在職中に作る ── */
-  const rZ = corpYear(v.gain0, v.rent, v.cost);
-  const rP = corpYear(v.gain, annualPay + si.company + v.rent, v.cost);
-  const si2 = si.total*Y;
-  const tx2 = rZ.ct*N + (rP.ct + pt)*Y;
-  const mt2 = v.est + (v.cost + KINTO)*(N+Y);
-  const tot2 = si2 + tx2 + mt2;
-
-  return {Y,N,annualPay,si,pt,si1,tx1,tot1,si2,tx2,mt2,tot2,rZ,rP};
+/* 1年分：g=運用益, pay=年間報酬, si=合同会社の社保（nullなら勤務先のまま）, kokuho=無職の場合の国保＋年金 */
+function year(v, g, pay, si, kokuho){
+  const siCo = si ? si.company : 0;
+  const own = pay + siCo + v.rent;
+  const profit = g - own - v.cost;
+  const ct = corpTax(profit) + KINTO;
+  const pt = si ? payTax(pay, si.self) : 0;
+  const ind = g*T_IND;
+  const tx = ind - ct - pt - v.cost;
+  const siTot = si ? si.total : 0;
+  const ss = si ? kokuho - siTot : 0;
+  return {g, own, profit, ind, corp: ct+pt, tx, kokuho, siTot, ss, total: tx+ss};
 }
+
+function put(id, v){ const el=$(id); el.textContent = sgn(v); el.className = cls(v); }
 
 function update(){
   IDS.forEach(id=>setPct($(id)));
   const v = {}; IDS.forEach(id=>{ v[id] = +$(id).value; });
-  ['age','zy','ty'].forEach(id=>$('v-'+id).textContent = v[id]);
-  ['inc','gain0','gain','sal','rent','est','cost'].forEach(id=>$('v-'+id).textContent = v[id].toLocaleString('ja-JP'));
+  ['age','ty'].forEach(id=>$('v-'+id).textContent = v[id]);
+  ['inc','gain0','gain','sal','rent','cost','est'].forEach(id=>$('v-'+id).textContent = v[id].toLocaleString('ja-JP'));
 
-  const R = compute(v);
-  const {Y,N} = R;
+  const age = v.age, Y = v.ty;
+  const si = calcCorpSI(v.sal, age);
+  const pay = v.sal*12;
+  const k1 = calcKokuho(kyuyoShotoku(v.inc), age, 0);
+  const k2 = calcKokuho(0, age, 0.7);
 
-  $('t-res').textContent = `結果：在職中${N}年＋退職後${Y}年に払うお金の合計（少ないほど得）`;
-  $('r1').textContent = yen(R.tot1);
-  $('r2').textContent = yen(R.tot2);
-  const d = R.tot1 - R.tot2;
-  $('rd').textContent = d>=0 ? `${yen(d)} 少ない` : `${yen(-d)} 多い`;
+  const A = year(v, v.gain0, 0, null, 0);
+  const B = year(v, v.gain, pay, si, k1);
+  const C = year(v, v.gain, pay, si, k2);
 
-  const al = $('al'); const msgs = [];
-  if(d<0) msgs.push('この条件では、合同会社を作らない①の方が少なくなります。運用益が小さい場合や、会社を作ったから増えるコストが大きい場合に起こります。');
-  if(R.rP.profit<0) msgs.push('退職後の合同会社の経費が運用益を上回り、赤字になっています（赤字の繰越は考慮していません）。');
-  if(R.rP.profit>4e6) msgs.push('合同会社に残る利益が大きく、税率が個人の約20%を上回る部分が増えています。');
-  if(msgs.length){ al.innerHTML = msgs.join('<br>'); al.classList.add('show'); } else al.classList.remove('show');
+  [['a',A],['b',B],['c',C]].forEach(([k,r])=>{
+    put(k+'-tx', r.tx);
+    if(k==='a'){ const el=$('a-si'); el.textContent='変わらない'; el.className='z'; }
+    else put(k+'-si', r.ss);
+    put(k+'-t', r.total);
+  });
 
-  const setE = (id, val) => { const el=$(id); el.textContent = sgn(val); el.className = val>=0?'p':'n'; };
-  setE('e-tx', R.tx1 - R.tx2); setE('e-si', R.si1 - R.si2); setE('e-mt', -R.mt2); setE('e-t', d);
+  const total = A.total + B.total + C.total*(Y-1) - v.est;
+  $('s-t').textContent = `在職中1年＋退職後${Y}年の合計（設立費用を差し引き後）`;
+  $('s-a').textContent = total>=0 ? `${yen(total)} 得` : `${yen(-total)} 損`;
+  $('s-s').textContent = `在職中 ${sgn(A.total)} ＋ 退職1年目 ${sgn(B.total)}` + (Y>1 ? ` ＋ 2年目以降 ${sgn(C.total)}×${Y-1}年` : '') + ` − 設立費用 ${yen(v.est)}`;
 
-  $('l-si').textContent = `社会保険料（退職後${Y}年・家族全体）`;
-  $('c-t').textContent = `▲ 表1：在職中${N}年＋退職後${Y}年に払うお金の合計`;
-  $('t1-si').textContent = yen(R.si1); $('t2-si').textContent = yen(R.si2);
-  $('t1-tx').textContent = yen(R.tx1); $('t2-tx').textContent = yen(R.tx2);
-  $('t2-mt').textContent = yen(R.mt2);
-  $('t1-t').textContent = yen(R.tot1); $('t2-t').textContent = yen(R.tot2);
+  const msgs = [];
+  if(total<0) msgs.push('この条件では、合同会社を持たない方が少なくなります。運用益が小さい場合や、会社を作ったから増えるコストが大きい場合に起こります。');
+  if(B.profit<0) msgs.push('退職後の合同会社の経費が運用益を上回り、赤字になっています（赤字の繰越は考慮していません）。');
+  if(B.profit>4e6) msgs.push('合同会社に残る利益が大きく、税率が個人の約20%を上回る部分が増えています。');
+  const al=$('al'); if(msgs.length){ al.innerHTML=msgs.join('<br>'); al.classList.add('show'); } else al.classList.remove('show');
 
-  const cols = [
-    {r:R.rZ, g:v.gain0, own:v.rent, w:0},
-    {r:R.rP, g:v.gain,  own:R.annualPay + R.si.company + v.rent, w:R.pt}
-  ];
-  cols.forEach((c,i)=>{
-    const k = i+1;
-    $('p-g'+k).textContent = yen(c.g);
-    $('p-o'+k).textContent = neg(c.own);
-    $('p-x'+k).textContent = neg(v.cost);
-    $('p-p'+k).textContent = yen(c.r.profit);
-    $('p-c'+k).textContent = yen(c.r.ct + KINTO + c.w);
-    $('p-i'+k).textContent = yen(c.r.indTax);
+  [A,B,C].forEach((r,i)=>{
+    const k=i+1;
+    $('d-g'+k).textContent = yen(r.g);
+    $('d-o'+k).textContent = yen(-r.own);
+    $('d-x'+k).textContent = yen(-v.cost);
+    $('d-p'+k).textContent = yen(r.profit);
+    $('d-i'+k).textContent = yen(r.ind);
+    $('d-c'+k).textContent = yen(r.corp);
+    $('d-t'+k).textContent = sgn(r.tx);
+    $('d-k'+k).textContent = i===0 ? '—' : yen(r.kokuho);
+    $('d-h'+k).textContent = i===0 ? '—' : yen(r.siTot);
+    $('d-s'+k).textContent = i===0 ? '¥0' : sgn(r.ss);
   });
 }
 
