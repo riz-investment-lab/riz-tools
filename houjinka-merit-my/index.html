@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>法人化メリット比較シミュレーター（自分用）｜Riz</title>
+<style>
+  :root{
+    /* layout: ケース1〜3を横並び（1080px以上で3カラム、未満は縦積み）→ 下に3ケース比較表 */
+    --bg:#F6F7FA; --surface:#FFFFFF; --surface-2:#EEF1F6; --surface-3:#E4E8F0;
+    --fg:#1B2333; --fg-muted:#5B6578; --border:#DCE1EA;
+    --navy:#1B2A4A; --navy-soft:#E8ECF5;
+    --accent:#1C7A4C; --accent-soft:#E2F3E9; --accent-strong:#14603B;
+    --plum:#6E4A86; --plum-soft:#F1EAF6;
+    --warn:#A85A1E; --warn-soft:#FBEDE0;
+    --danger:#B23B3B; --danger-soft:#FBEAEA;
+    --font-display:"Zen Kaku Gothic New","Noto Sans JP",sans-serif;
+    --font-body:"Noto Sans JP",sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#10141D; --surface:#171D2A; --surface-2:#1E2535; --surface-3:#262E42;
+      --fg:#E8EAF1; --fg-muted:#99A2B8; --border:#2B3347;
+      --navy:#8FA6DE; --navy-soft:#212A44;
+      --accent:#52CB8E; --accent-soft:#183828; --accent-strong:#7BE3AE;
+      --plum:#C4A2DC; --plum-soft:#2C2238;
+      --warn:#E39A52; --warn-soft:#352515;
+      --danger:#E3787C; --danger-soft:#352021;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#10141D; --surface:#171D2A; --surface-2:#1E2535; --surface-3:#262E42;
+    --fg:#E8EAF1; --fg-muted:#99A2B8; --border:#2B3347;
+    --navy:#8FA6DE; --navy-soft:#212A44;
+    --accent:#52CB8E; --accent-soft:#183828; --accent-strong:#7BE3AE;
+    --plum:#C4A2DC; --plum-soft:#2C2238;
+    --warn:#E39A52; --warn-soft:#352515;
+    --danger:#E3787C; --danger-soft:#352021;
+    color-scheme: dark;
+  }
+
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  body{
+    margin:0; background:var(--bg); color:var(--fg);
+    font-family:var(--font-body); font-size:15px; line-height:1.65;
+    padding-left:max(16px, env(safe-area-inset-left,0px));
+    padding-right:max(16px, env(safe-area-inset-right,0px));
+  }
+  h1,h2,h3{font-family:var(--font-display); font-weight:700; text-wrap:balance; margin:0;}
+  .num{font-variant-numeric:tabular-nums;}
+
+  .wrap{max-width:1320px; margin:0 auto; padding-block:28px 48px;}
+
+  header.page{margin-bottom:18px; max-width:760px;}
+  header.page .eyebrow{font-size:12px; letter-spacing:.08em; color:var(--accent); font-weight:700;}
+  header.page h1{font-size:clamp(22px,4vw,30px); color:var(--navy); margin-top:4px;}
+  header.page p{color:var(--fg-muted); margin-top:8px; max-width:62ch; font-size:13.5px;}
+
+  .section-title{
+    font-size:13px; font-weight:700; letter-spacing:.04em; color:var(--fg-muted);
+    margin:30px 0 12px; padding-top:14px; border-top:1px solid var(--border);
+  }
+
+  .top-actions{display:flex; justify-content:flex-end; margin-bottom:10px;}
+  button.reset{
+    border:1px solid var(--border); background:var(--surface-2); color:var(--fg);
+    border-radius:8px; padding:8px 14px; font-size:12.5px; cursor:pointer; font-family:var(--font-body);
+  }
+  button.reset:hover{background:var(--surface-3);}
+  button:focus-visible, select:focus-visible, input:focus-visible{outline:2px solid var(--navy); outline-offset:1px;}
+
+  /* ケース3カラム */
+  .case-grid{display:grid; grid-template-columns:1fr; gap:20px;}
+  @media (min-width:1080px){ .case-grid{grid-template-columns:repeat(3, minmax(0,1fr));} }
+
+  .case{--c:var(--navy); --c-soft:var(--navy-soft); border-radius:18px; padding:4px; min-width:0;
+        background:linear-gradient(180deg, var(--c-soft), transparent 110px);}
+  .case.c2{--c:var(--accent); --c-soft:var(--accent-soft);}
+  .case.c3{--c:var(--plum); --c-soft:var(--plum-soft);}
+
+  .case-head{display:flex; align-items:center; gap:10px; padding:14px 12px 4px;}
+  .case-head .tag{font-size:11px; font-weight:700; padding:3px 10px; border-radius:999px; background:var(--c); color:var(--surface); letter-spacing:.03em; white-space:nowrap;}
+  .case-title{display:flex; flex-direction:column; min-width:0;}
+  .case-title h2{font-size:16px; line-height:1.3;}
+  .case-sub{font-size:11.5px; color:var(--fg-muted);}
+  .case-body{display:flex; flex-direction:column; gap:12px; padding:8px 2px 2px;}
+
+  /* 3カラム表示時は、各ケースのカードを同じ段（行）に揃える */
+  @media (min-width:1080px){
+    .case-grid{grid-template-rows:repeat(6, auto); row-gap:0;}
+    .case{display:grid; grid-row:span 6; grid-template-rows:subgrid; row-gap:12px; padding:4px 4px 6px;}
+    .case-body{display:contents;}
+    .case-head{padding-bottom:0;}
+    .case .card, .case .mini-summary{display:flex; flex-direction:column; margin:0 2px;}
+    .case details.ref{margin:0 2px; align-self:start;}
+    .case .card > .field-row:last-of-type{margin-bottom:10px;}
+    .case .card > .subtotal-line:last-child{margin-top:auto;}
+    .case .mini-row.total{margin-top:auto;}
+    .case .calc-note:has(+ .mini-row.total){padding-bottom:10px;}
+  }
+
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:14px 14px 16px;}
+  .card > h3{font-size:13.5px; display:flex; align-items:center; gap:8px; margin-bottom:6px; flex-wrap:wrap;}
+  .badge{font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:999px; white-space:nowrap;}
+  .badge.save{background:var(--accent-soft); color:var(--accent-strong);}
+  .badge.cost{background:var(--warn-soft); color:var(--warn);}
+
+  .field-row{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:4px 10px; align-items:center; padding:7px 0; border-bottom:1px dashed var(--border);}
+  .field-row:last-of-type{border-bottom:none;}
+  .field-row label{font-size:12.5px;}
+  .field-row .hint{display:block; font-size:10.5px; color:var(--fg-muted); margin-top:1px; line-height:1.5;}
+  .inputgroup{display:flex; align-items:center; gap:5px; justify-self:end;}
+  input[type=number], select{
+    width:96px; padding:6px 8px; border-radius:8px; border:1px solid var(--border);
+    background:var(--surface-2); color:var(--fg); font-size:13px; text-align:right;
+    font-variant-numeric:tabular-nums; font-family:var(--font-body);
+  }
+  select{text-align:left; width:auto; min-width:72px;}
+  select.ins{width:100%; font-size:13.5px; font-weight:700; padding:8px 10px; border-color:var(--c);}
+  .unit{font-size:11.5px; color:var(--fg-muted); width:26px;}
+
+  .toggle-row{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:7px 0; font-size:12.5px;}
+  .switch{position:relative; width:38px; height:21px; flex:none;}
+  .switch input{position:absolute; opacity:0; width:100%; height:100%; margin:0; cursor:pointer;}
+  .switch .track{position:absolute; inset:0; background:var(--surface-3); border-radius:999px; transition:.15s; border:1px solid var(--border);}
+  .switch .thumb{position:absolute; top:2px; left:2px; width:15px; height:15px; border-radius:50%; background:var(--surface); box-shadow:0 1px 2px rgba(0,0,0,.25); transition:.15s;}
+  .switch input:checked + .track{background:var(--accent);}
+  .switch input:checked + .track .thumb{transform:translateX(17px);}
+  .switch input:focus-visible + .track{outline:2px solid var(--navy); outline-offset:1px;}
+
+  .subtotal-line{display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin-top:10px; padding-top:10px; border-top:1px solid var(--border); font-size:12.5px;}
+  .subtotal-line b{font-size:14.5px; white-space:nowrap;}
+  .breakdown-sub{display:flex; flex-wrap:wrap; justify-content:space-between; gap:2px 10px; margin-top:4px; font-size:11px; color:var(--fg-muted);}
+  .breakdown-sub b{color:var(--fg); font-variant-numeric:tabular-nums;}
+
+  .note{font-size:11px; color:var(--fg-muted); line-height:1.6; margin:6px 0 0;}
+  .warn-box{font-size:11px; line-height:1.6; color:var(--warn); background:var(--warn-soft); border-radius:8px; padding:7px 10px; margin-top:8px;}
+  .ins-explain{font-size:11px; color:var(--fg-muted); line-height:1.6; background:var(--surface-2); border-radius:8px; padding:8px 10px; margin-top:8px;}
+
+  /* ケース内まとめ */
+  .mini-summary{background:var(--surface); border:1px solid var(--border); border-top:3px solid var(--c); border-radius:14px; padding:14px 16px;}
+  .mini-summary .hero-label{font-size:12px; color:var(--fg-muted);}
+  .mini-summary .hero-val{font-family:var(--font-display); font-size:clamp(24px,4vw,28px); font-weight:700; color:var(--navy); margin-top:2px;}
+  .mini-row{display:flex; justify-content:space-between; align-items:baseline; gap:10px; padding:9px 0 0; margin-top:8px; border-top:1px dashed var(--border);}
+  .mini-row span{font-size:12.5px;}
+  .mini-row b{font-size:15px; white-space:nowrap;}
+  .mini-row.total{border-top:2px solid var(--c); margin-top:10px; padding-top:11px;}
+  .mini-row.total span{font-weight:700; font-size:13px;}
+  .mini-row.total b{font-size:21px; color:var(--accent-strong);}
+  .mini-row.total b.neg, .neg{color:var(--danger);}
+  .calc-note{font-size:10.5px; color:var(--fg-muted); margin-top:3px; line-height:1.6;}
+
+  details.ref{background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:2px 14px;}
+  details.ref summary{cursor:pointer; padding:9px 0; font-size:12px; font-weight:700; color:var(--fg-muted); list-style:none;}
+  details.ref summary::-webkit-details-marker{display:none;}
+  details.ref summary::before{content:"詳細を見る ▸";}
+  details.ref[open] summary::before{content:"詳細を閉じる ▾";}
+  details.ref .ref-body{padding-bottom:10px;}
+  .tile{display:flex; justify-content:space-between; align-items:baseline; gap:8px; padding:7px 0; border-bottom:1px solid var(--border); font-size:12px;}
+  .tile:last-child{border-bottom:none;}
+  .tile .label{color:var(--fg-muted);}
+  .tile .value{font-weight:700; white-space:nowrap;}
+
+  .table-scroll{overflow-x:auto;}
+  .compare-table{width:100%; border-collapse:collapse; font-size:12px;}
+  .compare-table th, .compare-table td{padding:6px 4px; text-align:right; border-bottom:1px solid var(--border); white-space:nowrap;}
+  .compare-table th:first-child, .compare-table td:first-child{text-align:left; color:var(--fg-muted); font-weight:400;}
+  .compare-table th{font-size:11px; color:var(--fg-muted);}
+  .compare-table tr.hl td{font-weight:700; border-bottom:none;}
+
+  /* 3ケース比較表 */
+  .matrix-card{background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:16px 18px 18px;}
+  .matrix{width:100%; border-collapse:collapse; font-size:13.5px; min-width:560px;}
+  .matrix th, .matrix td{padding:11px 10px; text-align:right; border-bottom:1px solid var(--border);}
+  .matrix th:first-child, .matrix td:first-child{text-align:left; color:var(--fg-muted); font-weight:400; white-space:nowrap;}
+  .matrix thead th{font-size:12px; vertical-align:bottom;}
+  .matrix thead th .cn{display:block; font-family:var(--font-display); font-size:14px; color:var(--fg); margin-top:2px;}
+  .matrix thead th.k1{border-bottom:3px solid var(--navy);}
+  .matrix thead th.k2{border-bottom:3px solid var(--accent);}
+  .matrix thead th.k3{border-bottom:3px solid var(--plum);}
+  .matrix td.txt{font-size:12px;}
+  .matrix tr.hl td{font-weight:700; font-size:17px; border-bottom:none; padding-top:14px;}
+  .matrix tr.hl td:first-child{color:var(--fg); font-size:13.5px;}
+  .best{display:inline-block; font-size:10px; font-weight:700; color:var(--surface); background:var(--accent); border-radius:999px; padding:1px 7px; margin-left:6px; vertical-align:middle;}
+
+  footer.disclaimer{margin-top:28px; padding-top:16px; border-top:1px solid var(--border); font-size:11.5px; color:var(--fg-muted); line-height:1.7;}
+  footer.disclaimer a{color:var(--accent-strong);}
+
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important;} }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header class="page">
+    <div class="eyebrow">RIZ ライフデザイン合同会社 — 節税試算ツール</div>
+    <h1>法人化メリット比較シミュレーター</h1>
+    <p>3つのケースを横に並べて、費用・役員報酬・保険の加入先を変えたときの法人化メリットを比べます。初期値はケース1が在職中、ケース2が退職1年目、ケース3が退職2年目以降です。金額の入力はすべて万円です。</p>
+  </header>
+
+  <div class="top-actions"><button class="reset" id="resetBtn" type="button">初期値に戻す</button></div>
+
+  <div class="case-grid" id="caseGrid"></div>
+
+  <h2 class="section-title">3ケースの比較</h2>
+  <div class="matrix-card">
+    <div class="table-scroll">
+      <table class="matrix">
+        <thead>
+          <tr>
+            <th>項目</th>
+            <th class="k1">ケース1<span class="cn" id="mName_1">—</span></th>
+            <th class="k2">ケース2<span class="cn" id="mName_2">—</span></th>
+            <th class="k3">ケース3<span class="cn" id="mName_3">—</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>前年の給与収入（国保比較用）</td><td class="num" id="mPrev_1">—</td><td class="num" id="mPrev_2">—</td><td class="num" id="mPrev_3">—</td></tr>
+          <tr><td>役員報酬（月額）</td><td class="num" id="mComp_1">—</td><td class="num" id="mComp_2">—</td><td class="num" id="mComp_3">—</td></tr>
+          <tr><td>目標最適収益</td><td class="num" id="mOpt_1">—</td><td class="num" id="mOpt_2">—</td><td class="num" id="mOpt_3">—</td></tr>
+          <tr><td>① 法人化による節税メリット</td><td class="num" id="mTax_1">—</td><td class="num" id="mTax_2">—</td><td class="num" id="mTax_3">—</td></tr>
+          <tr><td>② 社会保険によるメリット</td><td class="num" id="mSS_1">—</td><td class="num" id="mSS_2">—</td><td class="num" id="mSS_3">—</td></tr>
+          <tr class="hl"><td>③ トータルメリット</td><td class="num" id="mTotal_1">—</td><td class="num" id="mTotal_2">—</td><td class="num" id="mTotal_3">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note" style="margin-top:12px;">②社会保険によるメリットは「合同会社の社会保険」を選んだケースだけで発生し、国保＋国民年金に入っていた場合との差額です。国保は前年の収入で決まるため、退職1年目（前年は勤務先の給与）は差額が大きく、2年目以降（前年は合同会社の役員報酬だけ）は差額が小さくなります。「勤務先の社会保険」のケースは法人化しても保険料が変わらないため0円です。</p>
+  </div>
+
+  <footer class="disclaimer">
+    <strong>この試算について：</strong> 本シミュレーターは概算です。社会保険料率は協会けんぽ愛知支部・令和8年度（健康保険9.93%＋子ども・子育て支援金0.23%＋介護保険1.62%＋厚生年金18.3%、労使折半、子ども・子育て拠出金0.36%は合同会社の全額負担）で、<a href="https://riz-investment-lab.github.io/riz-tools/shakai-hoken/" target="_blank" rel="noopener">riz-tools/shakai-hoken</a> の前提と揃えています。標準報酬月額は協会けんぽの等級表（33万円未満）で判定し、厚生年金は下限8.8万円です。比較用の国民健康保険は riz-tools と同じ名古屋市・令和8年度料率（医療分・後期高齢者支援金分・介護分・子ども・子育て支援金分、平等割なし）で、所得割は「前年の給与所得＋その他の所得−基礎控除43万円」、各区分の賦課限度額と均等割の軽減（7割・5割・2割、令和7年度基準）を反映しています。「退職の理由」で勤務先都合を選ぶと、非自発的失業者の国保軽減（前年の給与所得を30%として計算。ハローワークで特定受給資格者・特定理由離職者と認められ、市区町村に届け出た場合。退職の翌年度末まで）を反映します。給与以外の所得は軽減の対象外です。国民年金は所得に関係なく定額（年215,040円、令和8年度）で、本人と「国民年金の対象人数」の分だけ計算します。役員報酬への所得税・住民税は給与所得控除・基礎控除・社会保険料控除を反映した累進計算で、勤務先の給与と合算した場合の税率上昇は反映していません。法人税は均等割70,000円＋所得割（実効税率21%、課税所得800万円超は概算33.6%）で、最適収益は法人税等までちょうど賄う水準のため税引後損益は0円です。正確な数値は税理士・社会保険労務士・年金事務所にご確認ください。
+  </footer>
+
+</div>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@500;700&display=swap" rel="stylesheet">
+
+<script>
+(function(){
+  // ---------- 固定値 ----------
+  var INDIV_TAX_RATE = 20.315;
+  var CORP_FLAT_TAX = 70000, CORP_LOW_RATE = 21, CORP_HIGH_RATE = 33.58, CORP_LOW_THRESHOLD = 8000000;
+  var HEALTH_RATE = 9.93, CARE_RATE = 1.62, CHILD_SUPPORT_RATE = 0.23, PENSION_RATE = 18.3, CHILD_LEVY_RATE = 0.36;
+  var NATIONAL_PENSION_PER_PERSON = 215040;
+  // 国保の賦課限度額（医療分67万＋支援金分26万＋子ども支援金分3万、介護該当は＋介護分17万。riz-tools/shakai-hoken と同水準）
+  var KOKUHO_CAP_NO_CARE = 960000, KOKUHO_CAP_WITH_CARE = 1130000;
+
+  var INS_LABEL = { employer:"勤務先の社会保険", gk:"合同会社の社会保険" };
+
+  // ---------- ケースごとの初期値（金額はすべて万円） ----------
+  var CASE_DEFAULTS = {
+    1: { insType:"employer", accountingSoftware:7, virtualOffice:2, claudeFee:4, corpSeal:8, otherExtra:0,
+         homeOffice:25, otherExpense:100, officerCompMonthly:0, lifeInsurancePremium:10, lifeInsuranceDeductibleRate:100,
+         dependents:2, pensionDependents:1, prevType:"employer", prevSalaryMan:1700, prevOtherMan:0, retireReason:"self", careApplicable:true },
+    2: { insType:"gk", accountingSoftware:7, virtualOffice:2, claudeFee:4, corpSeal:0, otherExtra:0,
+         homeOffice:25, otherExpense:100, officerCompMonthly:6, lifeInsurancePremium:10, lifeInsuranceDeductibleRate:100,
+         dependents:2, pensionDependents:1, prevType:"employer", prevSalaryMan:1700, prevOtherMan:0, retireReason:"company", careApplicable:true },
+    3: { insType:"gk", accountingSoftware:7, virtualOffice:2, claudeFee:4, corpSeal:0, otherExtra:0,
+         homeOffice:25, otherExpense:100, officerCompMonthly:8, lifeInsurancePremium:0, lifeInsuranceDeductibleRate:100,
+         dependents:2, pensionDependents:1, prevType:"gk", prevSalaryMan:72, prevOtherMan:0, retireReason:"self", careApplicable:true }
+  };
+  var CASES = [1,2,3];
+
+  // ---------- 画面生成 ----------
+  function numField(i, key, label, hint, step, unit){
+    return '<div class="field-row"><label for="'+key+'_'+i+'">'+label+(hint?'<span class="hint">'+hint+'</span>':'')+'</label>'+
+           '<div class="inputgroup"><input type="number" id="'+key+'_'+i+'" step="'+step+'" min="0"><span class="unit">'+unit+'</span></div></div>';
+  }
+  function selField(i, key, label, hint){
+    var opts = '';
+    for(var n=0;n<=5;n++){ opts += '<option value="'+n+'">'+n+'人</option>'; }
+    return '<div class="field-row"><label for="'+key+'_'+i+'">'+label+(hint?'<span class="hint">'+hint+'</span>':'')+'</label>'+
+           '<div class="inputgroup"><select id="'+key+'_'+i+'">'+opts+'</select></div></div>';
+  }
+
+  function caseHTML(i){
+    return ''+
+    '<section class="case c'+i+'" aria-label="ケース'+i+'">'+
+      '<div class="case-head"><span class="tag">ケース'+i+'</span>'+
+        '<div class="case-title"><h2 id="caseLabel_'+i+'">—</h2><span class="case-sub" id="caseSub_'+i+'"></span></div></div>'+
+      '<div class="case-body">'+
+
+        '<div class="card">'+
+          '<h3>保険の加入先</h3>'+
+          '<select class="ins" id="insType_'+i+'" aria-label="ケース'+i+'の保険の加入先">'+
+            '<option value="employer">勤務先の社会保険</option>'+
+            '<option value="gk">合同会社の社会保険</option>'+
+          '</select>'+
+          '<div class="ins-explain" id="insExplain_'+i+'"></div>'+
+
+          '<div id="familyBlock_'+i+'">'+
+            selField(i,"dependents","扶養人数","本人以外の家族の人数（子どもを含む）")+
+            selField(i,"pensionDependents","　└ うち国民年金の対象人数","20〜59歳の配偶者など。子どもは通常0人")+
+            '<div class="field-row"><label for="prevType_'+i+'">前年の給与の支払い元<span class="hint">退職1年目は勤務先、2年目以降は合同会社</span></label>'+
+              '<div class="inputgroup"><select id="prevType_'+i+'"><option value="employer">勤務先（退職1年目）</option><option value="gk">合同会社（2年目以降）</option></select></div></div>'+
+            '<div class="field-row"><label for="prevSalaryMan_'+i+'"><span id="prevSalaryLabel_'+i+'">前年の給与収入</span><span class="hint" id="prevSalaryHint_'+i+'"></span></label>'+
+              '<div class="inputgroup"><input type="number" id="prevSalaryMan_'+i+'" step="1" min="0"><span class="unit">万円</span></div></div>'+
+            numField(i,"prevOtherMan","前年のその他の所得","確定申告する所得。特定口座（源泉徴収あり）で申告しない利益は含めない","1","万円")+
+            '<div class="field-row" id="retireRow_'+i+'"><label for="retireReason_'+i+'">退職の理由<span class="hint">勤務先都合（解雇・倒産・雇止めなど）は、前年の給与所得を30%として国保を計算します（退職の翌年度末まで）</span></label>'+
+              '<div class="inputgroup"><select id="retireReason_'+i+'"><option value="self">自己都合</option><option value="company">勤務先都合</option></select></div></div>'+
+            '<div class="toggle-row"><label for="careApplicable_'+i+'">40〜64歳（介護保険の対象）<span class="hint" style="display:block;font-size:10.5px;color:var(--fg-muted);">本人と、国民年金の対象の配偶者が該当する前提</span></label>'+
+              '<div class="switch"><input type="checkbox" id="careApplicable_'+i+'"><div class="track"><div class="thumb"></div></div></div></div>'+
+          '</div>'+
+
+          '<div id="gkBlock_'+i+'">'+
+            '<div class="subtotal-line"><span>合同会社の社保＋厚生年金</span><b class="num" id="sumShakaihoken_'+i+'">—</b></div>'+
+            '<div class="breakdown-sub"><span>会社負担 <b id="sumShakaihokenCompany_'+i+'">—</b></span><span>本人負担 <b id="sumShakaihokenPersonal_'+i+'">—</b></span></div>'+
+            '<div class="subtotal-line"><span>比較用：国保＋国民年金だった場合</span><b class="num" id="sumKokuho_'+i+'">—</b></div>'+
+            '<div class="breakdown-sub"><span>国民健康保険 <b id="sumKokuhoOnly_'+i+'">—</b></span><span>国民年金 <b id="sumKokuminNenkin_'+i+'">—</b></span></div>'+
+            '<p class="note" id="kokuhoCapNote_'+i+'" hidden>国保は年間の上限（賦課限度額）に達しています。前年の収入がこれ以上高くても増えません。</p>'+
+          '</div>'+
+          '<div class="warn-box" id="insWarn_'+i+'" hidden></div>'+
+        '</div>'+
+
+        '<div class="card">'+
+          '<h3>法人のための追加コスト <span class="badge cost">個人なら不要</span></h3>'+
+          numField(i,"accountingSoftware","会計ソフト","","0.1","万円")+
+          numField(i,"virtualOffice","バーチャルオフィス","","0.1","万円")+
+          numField(i,"claudeFee","AI 等サブスク","","0.1","万円")+
+          numField(i,"corpSeal","法人印鑑・登記関連","設立初年度のみ","0.1","万円")+
+          numField(i,"otherExtra","その他の追加コスト","","0.1","万円")+
+          '<div class="subtotal-line"><span>追加コスト合計</span><b class="num" id="sumExtra_'+i+'">—</b></div>'+
+        '</div>'+
+
+        '<div class="card">'+
+          '<h3>節税メリットのある費用 <span class="badge save">実費・個人でも発生</span></h3>'+
+          numField(i,"homeOffice","自宅オフィス（家賃按分）","","0.1","万円")+
+          numField(i,"otherExpense","その他経費","節税メリットのあるその他すべての費用","1","万円")+
+          numField(i,"officerCompMonthly","役員報酬（月額）","年額は自動計算","0.5","万円")+
+          numField(i,"lifeInsurancePremium","生命保険料（年額）","","1","万円")+
+          numField(i,"lifeInsuranceDeductibleRate","　└ うち損金算入割合","全額損金なら100","5","%")+
+          '<div class="subtotal-line"><span>節税メリット費用合計</span><b class="num" id="sumSaveExpense_'+i+'">—</b></div>'+
+        '</div>'+
+
+        '<div class="mini-summary">'+
+          '<div class="hero-label">目標最適収益・年間</div>'+
+          '<div class="hero-val num" id="sumOptimalRevenue_'+i+'">—</div>'+
+          '<div class="mini-row"><span>① 法人化による節税メリット</span><b class="num" id="sumTaxMerit_'+i+'">—</b></div>'+
+          '<div class="calc-note" id="taxMeritCalc_'+i+'">—</div>'+
+          '<div class="mini-row"><span>② 社会保険によるメリット</span><b class="num" id="sumSSMerit_'+i+'">—</b></div>'+
+          '<div class="calc-note" id="ssMeritCalc_'+i+'">—</div>'+
+          '<div class="mini-row total"><span>③ トータルメリット</span><b class="num" id="sumTotalMerit_'+i+'">—</b></div>'+
+        '</div>'+
+
+        '<details class="ref"><summary></summary><div class="ref-body">'+
+          '<div class="table-scroll"><table class="compare-table">'+
+            '<thead><tr><th></th><th>個人（特定口座）</th><th>合同会社</th></tr></thead><tbody>'+
+            '<tr><td>収益</td><td class="num" id="cmpRevenueIndiv_'+i+'">—</td><td class="num" id="cmpRevenueCorp_'+i+'">—</td></tr>'+
+            '<tr><td>損金</td><td class="num">−</td><td class="num" id="cmpDeductible_'+i+'">—</td></tr>'+
+            '<tr><td>税金</td><td class="num" id="cmpTaxIndiv_'+i+'">—</td><td class="num" id="cmpTaxCorp_'+i+'">—</td></tr>'+
+            '<tr class="hl"><td>手取り／税引後損益</td><td class="num" id="cmpNetIndiv_'+i+'">—</td><td class="num" id="cmpNetCorp_'+i+'">—</td></tr>'+
+          '</tbody></table></div>'+
+          '<div class="tile" style="margin-top:8px;"><span class="label">役員報酬・年額</span><span class="value num" id="outCompAnnual_'+i+'">—</span></div>'+
+          '<div class="tile"><span class="label">本人の所得税・住民税（報酬分）</span><span class="value num" id="outPersonalTax_'+i+'">—</span></div>'+
+          '<div class="tile"><span class="label">本人の手取り（報酬分・概算）</span><span class="value num" id="outPersonalTakeHome_'+i+'">—</span></div>'+
+        '</div></details>'+
+
+      '</div>'+
+    '</section>';
+  }
+
+  var grid = document.getElementById("caseGrid");
+  grid.innerHTML = CASES.map(caseHTML).join("");
+
+  // ---------- 入力の読み書き ----------
+  var KEYS = Object.keys(CASE_DEFAULTS[1]);
+  function $(id){ return document.getElementById(id); }
+  function el(key, i){ return $(key + "_" + i); }
+  function setVal(key, i, v){
+    var e = el(key, i); if(!e) return;
+    if(e.type === "checkbox") e.checked = !!v; else e.value = v;
+  }
+  function getNum(key, i){ var e = el(key, i); if(!e) return 0; var v = parseFloat(e.value); return isNaN(v) ? 0 : v; }
+  function set(id, text){ var e = $(id); if(e) e.textContent = text; }
+  function yen(n){ return (n < 0 ? "−" : "") + new Intl.NumberFormat('ja-JP').format(Math.round(Math.abs(n))) + "円"; }
+  function signed(n){ return (n >= 0 ? "+" : "") + yen(n); }
+
+  function applyDefaults(){
+    CASES.forEach(function(i){ KEYS.forEach(function(k){ setVal(k, i, CASE_DEFAULTS[i][k]); }); });
+  }
+  var STORE_KEY = "rizCaseSimV6";
+  function restore(){
+    try{
+      var s = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
+      if(!s) return;
+      CASES.forEach(function(i){ KEYS.forEach(function(k){ var id = k+"_"+i; if(s[id] !== undefined) setVal(k, i, s[id]); }); });
+    }catch(e){}
+  }
+  function save(){
+    try{
+      var s = {};
+      CASES.forEach(function(i){ KEYS.forEach(function(k){ var e = el(k,i); if(e) s[k+"_"+i] = e.type === "checkbox" ? e.checked : e.value; }); });
+      localStorage.setItem(STORE_KEY, JSON.stringify(s));
+    }catch(e){}
+  }
+
+  // ---------- 計算部品 ----------
+  function corpIncomeTax(x){
+    x = Math.max(0, x);
+    if(x <= CORP_LOW_THRESHOLD) return x * CORP_LOW_RATE/100;
+    return CORP_LOW_THRESHOLD*CORP_LOW_RATE/100 + (x-CORP_LOW_THRESHOLD)*CORP_HIGH_RATE/100;
+  }
+  // 給与所得（給与収入−給与所得控除。riz-tools/shakai-hoken と同じ式）
+  function kyuyoShotoku(x){
+    if(x <= 1900000) return Math.max(0, x - 650000);
+    if(x <= 3600000) return x*0.7 - 80000;
+    if(x <= 6600000) return x*0.8 - 440000;
+    if(x <= 8500000) return x*0.9 - 1100000;
+    return x - 1950000;
+  }
+
+  // ---- 名古屋市 国保 令和8年度（riz-tools/shakai-hoken と同じ料率） ----
+  var KH = {
+    iryo:  {s:0.0883, k:50591, lim:670000},
+    shien: {s:0.0258, k:15784, lim:260000},
+    kaigo: {s:0.0234, k:16120, lim:170000},
+    kodomo:{s:0.0026, k:1771, kAdult:92, lim:30000}
+  };
+  var KEIGEN = {base:430000, per5:305000, per2:560000};
+  function keigenRate(shotoku, all){
+    if(shotoku <= KEIGEN.base) return 0.7;
+    if(shotoku <= KEIGEN.base + KEIGEN.per5*all) return 0.5;
+    if(shotoku <= KEIGEN.base + KEIGEN.per2*all) return 0.2;
+    return 0;
+  }
+  function calcKokuho(shotoku, all, adults, kaigoN){
+    var base = Math.max(0, shotoku - 430000);
+    var r = 1 - keigenRate(shotoku, all);
+    var iryoRaw  = base*KH.iryo.s  + KH.iryo.k*all*r;
+    var shienRaw = base*KH.shien.s + KH.shien.k*all*r;
+    var kaigoRaw = kaigoN > 0 ? base*KH.kaigo.s + KH.kaigo.k*kaigoN*r : 0;
+    var koRaw    = base*KH.kodomo.s + (KH.kodomo.k + KH.kodomo.kAdult)*adults*r;
+    var capped = iryoRaw >= KH.iryo.lim || shienRaw >= KH.shien.lim || (kaigoN > 0 && kaigoRaw >= KH.kaigo.lim);
+    var total = Math.min(iryoRaw, KH.iryo.lim) + Math.min(shienRaw, KH.shien.lim) + Math.min(kaigoRaw, KH.kaigo.lim) + Math.min(koRaw, KH.kodomo.lim);
+    return { total: total, capped: capped, keigen: keigenRate(shotoku, all) };
+  }
+
+  // ---- 協会けんぽ 標準報酬月額（健康保険）：[報酬の上限（未満）, 標準報酬月額] ----
+  var GRADES = [[63000,58000],[73000,68000],[83000,78000],[93000,88000],[101000,98000],[107000,104000],[114000,110000],[122000,118000],[130000,126000],[138000,134000],[146000,142000],[155000,150000],[165000,160000],[175000,170000],[185000,180000],[195000,190000],[210000,200000],[230000,220000],[250000,240000],[270000,260000],[290000,280000],[310000,300000],[330000,320000]];
+  function hyojun(pay){
+    for(var g=0; g<GRADES.length; g++){ if(pay < GRADES[g][0]) return GRADES[g][1]; }
+    return Math.min(pay, 1390000); // 33万円以上は報酬月額で近似（上限139万円）
+  }
+  function incomeTax(t){
+    t = Math.max(0, t); var b;
+    if(t <= 1950000) b = t*0.05;
+    else if(t <= 3300000) b = t*0.10 - 97500;
+    else if(t <= 6950000) b = t*0.20 - 427500;
+    else if(t <= 9000000) b = t*0.23 - 636000;
+    else if(t <= 18000000) b = t*0.33 - 1536000;
+    else if(t <= 40000000) b = t*0.40 - 2796000;
+    else b = t*0.45 - 4796000;
+    return Math.max(0, b) * 1.021;
+  }
+  function residentTax(t){ t = Math.max(0, t); return t <= 0 ? 0 : t*0.10 + 5000; }
+
+  // ---------- ケースの計算 ----------
+  function calcCase(i){
+    var ins = el("insType", i).value;
+    var careOn = el("careApplicable", i).checked;
+
+    var MAN = 10000; // 入力は万円、計算は円
+    var extra = (getNum("accountingSoftware",i) + getNum("virtualOffice",i) + getNum("claudeFee",i) + getNum("corpSeal",i) + getNum("otherExtra",i)) * MAN;
+    var compM = getNum("officerCompMonthly", i) * MAN;
+    var compA = compM * 12;
+    var lifeDed = getNum("lifeInsurancePremium",i) * MAN * getNum("lifeInsuranceDeductibleRate",i) / 100;
+    var realExpense = (getNum("homeOffice",i) + getNum("otherExpense",i)) * MAN;
+
+    // 合同会社の社会保険（「合同会社の社会保険」を選んだ場合のみ発生）
+    var ssTotal = 0, companySS = 0, personalSS = 0;
+    if(ins === "gk" && compM > 0){
+      var hBase = hyojun(compM);
+      var pBase = Math.min(Math.max(88000, hBase), 650000); // 厚生年金は下限8.8万円・上限65万円
+      var hRate = HEALTH_RATE + CHILD_SUPPORT_RATE + (careOn ? CARE_RATE : 0);
+      var split = hBase*12*hRate/100 + pBase*12*PENSION_RATE/100;
+      var levy = pBase*12*CHILD_LEVY_RATE/100;
+      companySS = split/2 + levy;
+      personalSS = split/2;
+      ssTotal = companySS + personalSS;
+    }
+
+    // 比較用：国保＋国民年金（合同会社の社保に入らず、国保に入った場合の負担）
+    // 国保の所得割は「前年の給与所得（給与収入−給与所得控除）＋その他の所得 − 基礎控除43万円」が基準
+    var dependents = parseInt(el("dependents", i).value, 10) || 0;
+    var pensionDep = Math.min(parseInt(el("pensionDependents", i).value, 10) || 0, dependents);
+    var prevSalary = getNum("prevSalaryMan", i) * MAN;
+    var prevFromEmployer = el("prevType", i).value === "employer";
+    // 勤務先都合の軽減は、前年の給与が勤務先（会社員時代）のものである場合だけ選べる
+    var companyReason = prevFromEmployer && el("retireReason", i).value === "company";
+    $("retireRow_"+i).hidden = !prevFromEmployer;
+    set("prevSalaryLabel_"+i, prevFromEmployer ? "前年の給与収入（勤務先）" : "前年の役員報酬（年額）");
+    set("prevSalaryHint_"+i, prevFromEmployer ? "退職した年の前年の勤務先の年収" : "前年に合同会社から受け取った役員報酬の合計");
+    var prevSalaryShotoku = kyuyoShotoku(prevSalary) * (companyReason ? 0.3 : 1); // 非自発的失業の軽減：給与所得を30%として計算
+    var prevIncome = prevSalaryShotoku + getNum("prevOtherMan", i) * MAN;
+    var all = 1 + dependents;          // 均等割の人数（本人＋家族）
+    var adults = 1 + pensionDep;       // 子ども・子育て支援金分の均等割は18歳以上のみ
+    var kaigoN = careOn ? adults : 0;  // 介護分は40〜64歳の本人・配偶者
+    var kk = calcKokuho(prevIncome, all, adults, kaigoN);
+    var kokuho = kk.total;
+    var nenkin = NATIONAL_PENSION_PER_PERSON * (1 + pensionDep);
+    var nationalTotal = kokuho + nenkin;
+
+    // 法人の損金と最適収益
+    var saveExpense = realExpense + compA + lifeDed + companySS;
+    var deductible = extra + saveExpense;
+    var grossUp = CORP_FLAT_TAX / (1 - CORP_LOW_RATE/100);
+    var optimal = deductible + grossUp;
+    var taxable = optimal - deductible;
+    var corpTax = CORP_FLAT_TAX + corpIncomeTax(taxable);
+    var corpNet = taxable - corpTax;
+    var indivTax = optimal * INDIV_TAX_RATE/100;
+    var indivNet = optimal - indivTax;
+
+    var taxMerit = indivTax - corpTax - extra;
+    var ssMerit = ins === "gk" ? nationalTotal - ssTotal : 0;
+    var totalMerit = taxMerit + ssMerit;
+
+    // 役員報酬にかかる本人の税
+    var salaryIncome = kyuyoShotoku(compA);
+    var pTax = incomeTax(salaryIncome - 480000 - personalSS) + residentTax(salaryIncome - 430000 - personalSS);
+    var takeHome = compA - personalSS - pTax;
+
+    // ---- 表示切り替え ----
+    $("familyBlock_"+i).hidden = (ins !== "gk");
+    $("gkBlock_"+i).hidden = (ins !== "gk");
+    var capEl = $("kokuhoCapNote_"+i);
+    if(kk.capped){ capEl.textContent = "国保が年間の上限（賦課限度額）に達しています。前年の収入がこれ以上高くても増えません。"; }
+    else if(kk.keigen > 0){ capEl.textContent = "前年の所得が低いため、国保の均等割が" + (kk.keigen*10) + "割軽減されています。"; }
+    if(companyReason){ capEl.textContent = "勤務先都合の退職のため、前年の給与所得を30%として計算しています（ハローワークで特定受給資格者・特定理由離職者と認められ、届け出た場合）。" + (capEl.hidden ? "" : ""); }
+    capEl.hidden = !(ins === "gk" && (kk.capped || kk.keigen > 0 || companyReason));
+    if(companyReason && (kk.capped || kk.keigen > 0)){ capEl.textContent += (kk.capped ? "それでも国保は上限に達しています。" : "さらに均等割が" + (kk.keigen*10) + "割軽減されています。"); }
+
+    set("caseLabel_"+i, INS_LABEL[ins]);
+    var prevManTxt = new Intl.NumberFormat('ja-JP').format(getNum("prevSalaryMan", i)) + "万円";
+    set("caseSub_"+i, ins !== "gk" ? "在職中・役員報酬0円が基本"
+      : (prevFromEmployer ? "退職1年目・前年の給与 " + prevManTxt + (companyReason ? "（勤務先都合）" : "（自己都合）")
+                          : "2年目以降・前年の役員報酬 " + prevManTxt));
+
+    var explain = {
+      employer:"本業の会社の社会保険に加入中です。保険料は勤務先の給与から天引きされ、法人化しても変わらないため、追加の入力は不要です。②のメリットは0円になります。",
+      gk:"退職後、合同会社から役員報酬を受け取り、法人の社会保険に加入します。家族は扶養に入るため追加保険料はかかりません。もし国保に入っていたらいくらかかったか（前年の収入で決まる）との差額が②のメリットです。"
+    };
+    set("insExplain_"+i, explain[ins]);
+
+    var warn = "";
+    if(ins === "gk" && compM <= 0) warn = "合同会社の社会保険に加入するには役員報酬が必要です。下の「役員報酬（月額）」を入力してください。";
+    else if(ins === "employer" && compM > 0) warn = "在職中に役員報酬を受け取ると、勤務先と合同会社の両方で社会保険の手続き（二以上事業所勤務）が必要になります。この試算には反映していません。";
+    var w = $("insWarn_"+i); w.textContent = warn; w.hidden = !warn;
+
+    // ---- 数値表示 ----
+    set("sumShakaihoken_"+i, yen(ssTotal));
+    set("sumShakaihokenCompany_"+i, yen(companySS));
+    set("sumShakaihokenPersonal_"+i, yen(personalSS));
+    set("sumKokuho_"+i, yen(nationalTotal));
+    set("sumKokuhoOnly_"+i, yen(kokuho));
+    set("sumKokuminNenkin_"+i, yen(nenkin));
+    set("sumExtra_"+i, yen(extra));
+    set("sumSaveExpense_"+i, yen(saveExpense));
+
+    set("sumOptimalRevenue_"+i, yen(optimal));
+    set("sumTaxMerit_"+i, signed(taxMerit));
+    set("taxMeritCalc_"+i, "源泉徴収相当 " + yen(indivTax) + "（最適収益×20.315%）− 法人税等 " + yen(corpTax) + " − 追加コスト " + yen(extra));
+    set("sumSSMerit_"+i, signed(ssMerit));
+    set("ssMeritCalc_"+i, ins === "gk"
+      ? "国保＋国民年金 " + yen(nationalTotal) + " − 合同会社の社保 " + yen(ssTotal)
+      : "勤務先の社会保険のため対象外");
+    var tEl = $("sumTotalMerit_"+i);
+    tEl.textContent = signed(totalMerit);
+    tEl.classList.toggle("neg", totalMerit < 0);
+
+    set("cmpRevenueIndiv_"+i, yen(optimal));
+    set("cmpRevenueCorp_"+i, yen(optimal));
+    set("cmpDeductible_"+i, yen(deductible));
+    set("cmpTaxIndiv_"+i, yen(indivTax));
+    set("cmpTaxCorp_"+i, yen(corpTax));
+    set("cmpNetIndiv_"+i, yen(indivNet));
+    set("cmpNetCorp_"+i, yen(corpNet));
+    set("outCompAnnual_"+i, yen(compA));
+    set("outPersonalTax_"+i, yen(pTax));
+    set("outPersonalTakeHome_"+i, yen(takeHome));
+
+    return { ins: ins, compM: compM, prevSalary: prevSalary, optimal: optimal, taxMerit: taxMerit, ssMerit: ssMerit, totalMerit: totalMerit };
+  }
+
+  function renderMatrix(results){
+    var best = null;
+    results.forEach(function(r, idx){ if(best === null || r.totalMerit > results[best].totalMerit) best = idx; });
+    results.forEach(function(r, idx){
+      var i = idx + 1;
+      set("mName_"+i, INS_LABEL[r.ins]);
+      set("mPrev_"+i, r.ins === "gk" ? yen(r.prevSalary) : "—");
+      set("mComp_"+i, yen(r.compM));
+      set("mOpt_"+i, yen(r.optimal));
+      set("mTax_"+i, signed(r.taxMerit));
+      set("mSS_"+i, signed(r.ssMerit));
+      var t = $("mTotal_"+i);
+      t.textContent = signed(r.totalMerit);
+      t.classList.toggle("neg", r.totalMerit < 0);
+      if(idx === best){
+        var b = document.createElement("span"); b.className = "best"; b.textContent = "最大"; t.appendChild(b);
+      }
+    });
+  }
+
+  function recalcAll(){
+    var results = CASES.map(calcCase);
+    renderMatrix(results);
+    save();
+  }
+
+  // ---------- 初期化 ----------
+  applyDefaults();
+  restore();
+
+  CASES.forEach(function(i){
+    KEYS.forEach(function(k){
+      var e = el(k, i); if(!e) return;
+      var evt = (e.type === "checkbox" || e.tagName === "SELECT") ? "change" : "input";
+      e.addEventListener(evt, recalcAll);
+    });
+  });
+
+  $("resetBtn").addEventListener("click", function(){
+    try{ localStorage.removeItem(STORE_KEY); }catch(e){}
+    applyDefaults();
+    recalcAll();
+  });
+
+  recalcAll();
+})();
+</script>
+</body>
+</html>
