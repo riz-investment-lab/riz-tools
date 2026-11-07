@@ -182,7 +182,7 @@
   <header class="page">
     <div class="eyebrow">Riz｜設立実践</div>
     <h1>法人化メリット比較シミュレーター</h1>
-    <p>3つのケースを横に並べて、費用・役員報酬・保険の加入先を変えたときの法人化メリットを比べます。初期値はケース1が在職中、ケース2が退職1年目、ケース3が退職2年目以降のモデルケース（名古屋市・本人55歳・妻と子ども2人・退職前の年収800万円）です。金額の入力はすべて万円です。</p>
+    <p>3つのケースを横に並べて、費用・役員報酬・保険の加入先を変えたときの法人化メリットを比べます。初期値はケース1が在職中、ケース2が退職1年目、ケース3が退職2年目以降のモデルケース（名古屋市・本人55歳・妻と子ども2人・退職前の年収800万円・その他の経費は設立した年70万円、2年目以降40万円・生命保険料 年10万円）です。金額の入力はすべて万円です。</p>
   </header>
 
   <div class="top-actions"><button class="reset" id="resetBtn" type="button">初期値に戻す</button></div>
@@ -232,13 +232,13 @@
   // ---------- ケースごとの初期値（モデルケース。金額はすべて万円） ----------
   var CASE_DEFAULTS = {
     1: { insType:"employer", accountingSoftware:4, virtualOffice:0, claudeFee:9, corpSeal:10, otherExtra:0,
-         homeOffice:30, otherExpense:30, officerCompMonthly:0, lifeInsurancePremium:0, lifeInsuranceDeductibleRate:100,
+         homeOffice:30, otherExpense:70, officerCompMonthly:0, lifeInsurancePremium:10, lifeInsuranceDeductibleRate:100,
          dependents:3, pensionDependents:1, prevType:"employer", prevSalaryMan:800, prevOtherMan:0, retireReason:"self", careApplicable:true },
     2: { insType:"gk", accountingSoftware:4, virtualOffice:0, claudeFee:9, corpSeal:0, otherExtra:0,
-         homeOffice:30, otherExpense:30, officerCompMonthly:6, lifeInsurancePremium:0, lifeInsuranceDeductibleRate:100,
+         homeOffice:30, otherExpense:40, officerCompMonthly:6, lifeInsurancePremium:10, lifeInsuranceDeductibleRate:100,
          dependents:3, pensionDependents:1, prevType:"employer", prevSalaryMan:800, prevOtherMan:0, retireReason:"self", careApplicable:true },
     3: { insType:"gk", accountingSoftware:4, virtualOffice:0, claudeFee:9, corpSeal:0, otherExtra:0,
-         homeOffice:30, otherExpense:30, officerCompMonthly:6, lifeInsurancePremium:0, lifeInsuranceDeductibleRate:100,
+         homeOffice:30, otherExpense:40, officerCompMonthly:6, lifeInsurancePremium:10, lifeInsuranceDeductibleRate:100,
          dependents:3, pensionDependents:1, prevType:"gk", prevSalaryMan:72, prevOtherMan:0, retireReason:"self", careApplicable:true }
   };
   var CASES = [1,2,3];
@@ -306,9 +306,9 @@
         '<div class="card">'+
           '<h3>もともと払うお金 <span class="badge save">会社の経費にできる</span></h3>'+
           numField(i,"homeOffice","自宅の事務所分の家賃","業務に使う分だけ","0.1","万円")+
-          numField(i,"otherExpense","その他の経費","光熱費・通信費・備品など","1","万円")+
+          numField(i,"otherExpense","その他の経費","光熱費・通信費・備品など。設立した年は備品が増えやすい","1","万円")+
           numField(i,"officerCompMonthly","役員報酬（月額）","年額は自動計算","0.5","万円")+
-          numField(i,"lifeInsurancePremium","生命保険料（年額）","","1","万円")+
+          numField(i,"lifeInsurancePremium","生命保険料（年額）","すでに払っている保険を会社で払う場合","1","万円")+
           numField(i,"lifeInsuranceDeductibleRate","　└ うち経費にできる割合","全額経費なら100","5","%")+
           '<div class="subtotal-line"><span>もともと払うお金の合計</span><b class="num" id="sumSaveExpense_'+i+'">—</b></div>'+
         '</div>'+
